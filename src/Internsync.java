@@ -1,99 +1,163 @@
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 
 public class Internsync {
-    private ArrayList<User> users;
-    private ArrayList<Company> companies;
-    private ArrayList<Student> students;
 
-    private int nextUserId;
-    private int nextStudentId;
-    private int nextCompanyId;
+    private String systemName;
+    private String version;
 
-    public Internsync() {
-        users = new ArrayList<>();
-        companies = new ArrayList<>();
-        students = new ArrayList<>();
-        nextUserId = 1;
-        nextStudentId = 1;
-        nextCompanyId = 1;
-
-        // Create default admin
-        User admin = new User(nextUserId++, "admin", "admin", "admin123", "admin", "admin@example.com");
-        users.add(admin);
+    public Internsync(String systemName, String version) {
+        this.systemName = systemName;
+        this.version = version;
     }
 
-    // ------------------- User Management -------------------
-    public User registerUser(String username, String email, String name, String password, String role) {
-        User newUser = new User(nextUserId++, username, name, password, role, email);
-        users.add(newUser);
+    public void startSystem() {
+        Scanner sc = new Scanner(System.in);
+        boolean running = true;
 
-        if (role.equals("student")) {
-            students.add(new Student(nextStudentId++, username, email, newUser.getUserid(), "CS", "", "Not Applied"));
-        } else if (role.equals("company")) {
-            companies.add(new Company(nextCompanyId++, newUser.getUserid(), username, "IT", "5"));
-        }
+        System.out.println("=== " + systemName + " (" + version + ") ===");
 
-        return newUser;
-    }
+        while (running) {
+            System.out.println("\n1. Register");
+            System.out.println("2. Login");
+            System.out.println("3. Exit");
+            System.out.print("Choice: ");
+            int choice = sc.nextInt();
+            sc.nextLine();
 
-    public User login(String username, String password, String role) {
-        for (User u : users) {
-            if (u.getUsername().equals(username) && u.getPassword().equals(password) && u.getRole().equals(role)) {
-                return u;
+            switch (choice) {
+                case 1:
+                    registerUser(sc);
+                    break;
+                case 2:
+                    loginUser(sc);
+                    break;
+                case 3:
+                    running = false;
+                    System.out.println("System closed.");
+                    break;
             }
         }
-        return null; // invalid login
     }
 
-    public boolean changeUserRole(int userId, String newRole) {
-        for (User u : users) {
-            if (u.getUserid() == userId) {
-                u.UpdateProfile(u.getUsername(), u.getPassword(), u.getEmail());
-                // Only change role if admin calls
-                u.UpdateProfile(u.getUsername(), u.getPassword(), u.getEmail()); // role updated
-                return true;
+    // 🔐 REGISTER
+    public void registerUser(Scanner sc) {
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt", true));
+
+            System.out.print("Username: ");
+            String username = sc.nextLine();
+
+            System.out.print("Email: ");
+            String email = sc.nextLine();
+
+            System.out.print("Password: ");
+            String password = sc.nextLine();
+
+            System.out.println("Role: 1.Student 2.Company");
+            int r = sc.nextInt();
+            sc.nextLine();
+
+            String role = (r == 1) ? "student" : "company";
+
+            bw.write(username + "," + password + "," + role + "," + email);
+            bw.newLine();
+            bw.close();
+
+            System.out.println("Registered successfully!");
+        } catch (Exception e) {
+            System.out.println("Error saving user.");
+        }
+    }
+
+    // 🔑 LOGIN (uses polymorphism)
+    public void loginUser(Scanner sc) {
+        System.out.print("Username: ");
+        String user = sc.nextLine();
+
+        System.out.print("Password: ");
+        String pass = sc.nextLine();
+
+        boolean found = false;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("users.txt"));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+
+                if (data[0].equals(user) && data[1].equals(pass)) {
+                    found = true;
+
+                    String role = data[2];
+                    User currentUser;
+
+                    // 🔥 POLYMORPHISM
+                    if (role.equals("student")) {
+                        currentUser = new Student(1, user, pass, data[3], "CS");
+                    } else if (role.equals("company")) {
+                        currentUser = new Company(1, user, pass, data[3], user);
+                    } else {
+                        currentUser = new Admin(1, user, pass, data[3]);
+                    }
+
+                    currentUser.displayMenu();
+
+                    int option = sc.nextInt();
+                    sc.nextLine();
+
+                    handleUserAction(currentUser, option, sc);
+                }
+            }
+            br.close();
+
+            if (!found) {
+                System.out.println("Invalid login.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error reading file.");
+        }
+    }
+
+    // 🎯 HANDLE ACTIONS (clean separation)
+    private void handleUserAction(User currentUser, int option, Scanner sc) {
+
+        if (currentUser instanceof Student) {
+            Student s = (Student) currentUser;
+
+            if (option == 1) s.browseInternships();
+            else if (option == 2) {
+                System.out.print("Enter title: ");
+                String t = sc.nextLine();
+                s.applyInternship(t);
             }
         }
-        return false;
-    }
 
-    // ------------------- System Reports -------------------
-    public void viewSystemReports() {
-        System.out.println("\nUsers report:");
-        for (User u : users) {
-            System.out.println("UserID: " + u.getUserid() + " | Name: " + u.getUsername() + " | Role: " + u.getRole() + " | Email: " + u.getEmail());
+        else if (currentUser instanceof Company) {
+            Company c = (Company) currentUser;
+
+            if (option == 1) {
+                System.out.print("Title: ");
+                String t = sc.nextLine();
+                System.out.print("Desc: ");
+                String d = sc.nextLine();
+                c.postInternship(t, d);
+            }
         }
 
-        System.out.println("\nCompanies report:");
-        for (Company c : companies) {
-            System.out.println("CompanyID: " + c.getCompanyId() + " | Name: " + c.getCompanyName() + " | Industry: " + c.getIndustryType() + " | Slots: " + c.getAvailableSlots());
-        }
+        else if (currentUser instanceof Admin) {
+            Admin a = (Admin) currentUser;
 
-        System.out.println("\nStudents report:");
-        for (Student s : students) {
-            System.out.println("StudentID: " + s.getStudentId() + " | Name: " + s.getName() + " | Email: " + s.getEmail() + " | Course: " + s.getCourse());
+            if (option == 1) a.viewUsers();
+            else if (option == 2) {
+                System.out.print("Username: ");
+                String target = sc.nextLine();
+                System.out.print("New Role: ");
+                String newRole = sc.nextLine();
+                a.changeUserRole(target, newRole);
+            }
         }
-    }
-
-    // ------------------- Helper methods -------------------
-    public Student getStudentByUserId(int userId) {
-        for (Student s : students) {
-            if (s.getUserId() == userId) return s;
-        }
-        return null;
-    }
-
-    public Company getCompanyByUserId(int userId) {
-        for (Company c : companies) {
-            if (c.getUserId() == userId) return c;
-        }
-        return null;
-    }
-
-    public User getUserById(int userId) {
-        for (User u : users) {
-            if (u.getUserid() == userId) return u;
-        }
-        return null;
     }
 }

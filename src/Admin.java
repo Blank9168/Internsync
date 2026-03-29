@@ -1,80 +1,60 @@
 import java.io.*;
+import java.util.*;
 
-public class Admin {
-    private int adminid;
-    private int userId;
+public class Admin extends User {
 
-    private static final String USER_FILE = "data/users.txt";
-    private static final String COMPANY_FILE = "data/companies.txt";
-    private static final String INTERNSHIP_FILE = "data/internships.txt";
-
-    public Admin(int adminid, int userId) {
-        this.adminid = adminid;
-        this.userId = userId;
+    public Admin(int userid, String username, String password, String email) {
+        super(userid, username, password, "admin", email);
     }
 
-    public void manageUsers() {
-        System.out.println("Managing users...");
-        try (BufferedReader br = new BufferedReader(new FileReader(USER_FILE))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading users: " + e.getMessage());
-        }
+    @Override
+    public void displayMenu() {
+        System.out.println("\n--- ADMIN MENU ---");
+        System.out.println("1. View Users");
+        System.out.println("2. Change User Role");
     }
 
-    public void approveCompanies() {
-        System.out.println("Approving companies...");
-        try (BufferedReader br = new BufferedReader(new FileReader(COMPANY_FILE))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading companies: " + e.getMessage());
-        }
-    }
-
-    public void manageInternships() {
-        System.out.println("Managing internships...");
-        try (BufferedReader br = new BufferedReader(new FileReader(INTERNSHIP_FILE))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading internships: " + e.getMessage());
-        }
-    }
-
-    public void changeUserRole(User user, String newRole) {
-        // Keep UpdateProfile unchanged for username/password/email
-        user.UpdateProfile(user.getUsername(), user.getPassword(), user.getEmail());
-
-        // Update role via reflection (role is private)
+    public void viewUsers() {
         try {
-            java.lang.reflect.Field roleField = User.class.getDeclaredField("role");
-            roleField.setAccessible(true);
-            roleField.set(user, newRole);
-            System.out.println("Role updated for user: " + user.getUsername() + " -> " + newRole);
+            BufferedReader br = new BufferedReader(new FileReader("users.txt"));
+            String line;
+            System.out.println("\n=== USERS ===");
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+            br.close();
         } catch (Exception e) {
-            System.out.println("Error changing user role: " + e.getMessage());
+            System.out.println("Error reading users.");
         }
     }
 
-    public void viewSystemReports() {
-        System.out.println("System Reports:");
-        System.out.println("Users report:");
-        manageUsers();
-        System.out.println("Companies report:");
-        approveCompanies();
-        System.out.println("Internships report:");
-        manageInternships();
-    }
+    public void changeUserRole(String targetUsername, String newRole) {
+        try {
+            List<String> lines = new ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader("users.txt"));
+            String line;
 
-    // Getters
-    public int getAdminid() { return adminid; }
-    public int getUserId() { return userId; }
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+
+                if (data[0].equals(targetUsername)) {
+                    line = data[0] + "," + data[1] + "," + newRole + "," + data[3];
+                }
+
+                lines.add(line);
+            }
+            br.close();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
+            for (String l : lines) {
+                bw.write(l);
+                bw.newLine();
+            }
+            bw.close();
+
+            System.out.println("Role updated!");
+        } catch (Exception e) {
+            System.out.println("Error updating role.");
+        }
+    }
 }
