@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class InternSync {
+public class Internsync {
     private ArrayList<User> users;
     private ArrayList<Company> companies;
     private ArrayList<Student> students;
@@ -9,7 +9,7 @@ public class InternSync {
     private int nextStudentId;
     private int nextCompanyId;
 
-    public InternSync() {
+    public Internsync() {
         users = new ArrayList<>();
         companies = new ArrayList<>();
         students = new ArrayList<>();
@@ -18,13 +18,13 @@ public class InternSync {
         nextCompanyId = 1;
 
         // Create default admin
-        User admin = new User(nextUserId++, "admin", "admin123", "admin", "admin@example.com");
+        User admin = new User(nextUserId++, "admin", "admin", "admin123", "admin", "admin@example.com");
         users.add(admin);
     }
 
     // ------------------- User Management -------------------
-    public User registerUser(String username, String email, String password, String role) {
-        User newUser = new User(nextUserId++, username, password, role, email);
+    public User registerUser(String username, String email, String name, String password, String role) {
+        User newUser = new User(nextUserId++, username, name, password, role, email);
         users.add(newUser);
 
         if (role.equals("student")) {
@@ -66,12 +66,12 @@ public class InternSync {
 
         System.out.println("\nCompanies report:");
         for (Company c : companies) {
-            System.out.println("CompanyID: " + c.getCompanyid() + " | Name: " + c.getCompanyName() + " | Industry: " + c.getIndustryType() + " | Slots: " + c.getAvailableSlots());
+            System.out.println("CompanyID: " + c.getCompanyId() + " | Name: " + c.getCompanyName() + " | Industry: " + c.getIndustryType() + " | Slots: " + c.getAvailableSlots());
         }
 
         System.out.println("\nStudents report:");
         for (Student s : students) {
-            System.out.println("StudentID: " + s.getStudentid() + " | Name: " + s.getName() + " | Email: " + s.getEmail() + " | Course: " + s.getCourse());
+            System.out.println("StudentID: " + s.getStudentId() + " | Name: " + s.getName() + " | Email: " + s.getEmail() + " | Course: " + s.getCourse());
         }
     }
 

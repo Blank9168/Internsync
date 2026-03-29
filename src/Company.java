@@ -102,6 +102,7 @@ public class Company {
     }
 
     // Getters
+    public int getUserId() { return userId; }
     public int getCompanyId() { return companyid; }
     public String getCompanyName() { return companyName; }
     public String getIndustryType() { return industryType; }

@@ -69,4 +69,13 @@ public class Student {
         this.resumeFile = resumeFile;
         System.out.println("Resume uploaded: " + resumeFile);
     }
+
+    //Getters
+    public int getStudentId() { return studentid; }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public int getUserId() { return userId; }
+    public String getCourse() { return course; }
+    public String getResumeFile() { return resumeFile; }
+    public String getApplicationStatus() { return applicationStatus; }
 }
