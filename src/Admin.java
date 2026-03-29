@@ -11,7 +11,7 @@ public class Admin {
         
     }
 
-    public void manageCompanies() {
+    public void approveCompanies() {
         
     }
 
@@ -23,5 +23,7 @@ public class Admin {
         user.UpdateProfile(user.getUserid(), user.getUsername(), user.getPassword(), user.getEmail());
     }
 
-
+    public void viewSystemReports() {
+        
+    }
 }
