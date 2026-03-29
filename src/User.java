@@ -1,3 +1,4 @@
+
 public class User {
     private int userid;
     private String username;
@@ -11,6 +12,10 @@ public class User {
         this.password = password;
         this.role = role;
         this.email = email;
+    }
+
+    public int getUserid() {
+        return userid;
     }
 
     public boolean login(String username, String password) {
