@@ -5,6 +5,7 @@ public class User {
     private String password;
     private String role;
     private String email;
+    public String getUserid;
 
     public User(int userid, String username, String password, String role, String email) {
         this.userid = userid;
@@ -12,6 +13,22 @@ public class User {
         this.password = password;
         this.role = role;
         this.email = email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public int getUserid() {

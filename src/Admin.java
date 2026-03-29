@@ -4,7 +4,6 @@ public class Admin {
 
     public Admin(int adminid, int userId) {
         this.adminid = adminid;
-
         this.userId = userId;
     }
 
@@ -21,7 +20,7 @@ public class Admin {
     }
 
     public void changeUserRole(User user, String newRole) {
-        user.UpdateProfile(user.getUserid);
+        user.UpdateProfile(user.getUserid(), user.getUsername(), user.getPassword(), user.getEmail());
     }
 
 
