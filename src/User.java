@@ -1,14 +1,16 @@
 public class User {
     private int userid;
     private String username;
+    private String name;
     private String password;
     private String role;
     private String email;
 
     // Constructor
-    public User(int userid, String username, String password, String role, String email) {
+    public User(int userid, String username, String name, String password, String role, String email) {
         this.userid = userid;
         this.username = username;
+        this.name = name;
         this.password = password;
         this.role = role;
         this.email = email;
@@ -21,6 +23,10 @@ public class User {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getPassword() {
