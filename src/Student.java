@@ -1,44 +1,27 @@
-import java.io.*;
-
 public class Student extends User {
-
+    private String name;
     private String course;
 
-    public Student(int userid, String username, String password, String email, String course) {
-        super(userid, username, password, "student", email);
+    public Student(int id, String username, String password, String email, String name, String course) {
+        super(id, username, password, "student", email, name, course);
+        this.name = name;
         this.course = course;
     }
 
     @Override
     public void displayMenu() {
-        System.out.println("\n--- STUDENT MENU ---");
+        System.out.println("\nWelcome, " + name + " (" + course + ")");
         System.out.println("1. Browse Internships");
-        System.out.println("2. Apply Internship");
+        System.out.println("2. Apply for Internship");
+        System.out.print("Choice: ");
     }
 
+    // Example methods
     public void browseInternships() {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("internships.txt"));
-            String line;
-            System.out.println("\nAvailable Internships:");
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-            }
-            br.close();
-        } catch (Exception e) {
-            System.out.println("No internships found.");
-        }
+        System.out.println("Displaying available internships...");
     }
 
     public void applyInternship(String title) {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("applications.txt", true));
-            bw.write(username + " applied to " + title);
-            bw.newLine();
-            bw.close();
-            System.out.println("Application submitted!");
-        } catch (Exception e) {
-            System.out.println("Error applying.");
-        }
+        System.out.println("Applied for internship: " + title);
     }
 }

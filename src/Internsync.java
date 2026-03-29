@@ -42,33 +42,44 @@ public class Internsync {
 
     // 🔐 REGISTER
     public void registerUser(Scanner sc) {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt", true));
+    try {
+        BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt", true));
 
-            System.out.print("Username: ");
-            String username = sc.nextLine();
+        System.out.print("Username: ");
+        String username = sc.nextLine();
 
-            System.out.print("Email: ");
-            String email = sc.nextLine();
+        System.out.print("Email: ");
+        String email = sc.nextLine();
 
-            System.out.print("Password: ");
-            String password = sc.nextLine();
+        System.out.print("Password: ");
+        String password = sc.nextLine();
 
-            System.out.println("Role: 1.Student 2.Company");
-            int r = sc.nextInt();
-            sc.nextLine();
+        System.out.println("Role: 1.Student 2.Company");
+        int r = sc.nextInt();
+        sc.nextLine();
 
-            String role = (r == 1) ? "student" : "company";
+        String role = (r == 1) ? "student" : "company";
+        String name = "";
+        String course = "";
 
-            bw.write(username + "," + password + "," + role + "," + email);
-            bw.newLine();
-            bw.close();
+        if (role.equals("student")) {
+            System.out.print("Full Name: ");
+            name = sc.nextLine();
 
-            System.out.println("Registered successfully!");
-        } catch (Exception e) {
-            System.out.println("Error saving user.");
+            System.out.print("Course: ");
+            course = sc.nextLine();
         }
+
+        // Save format: username,password,role,email,name,course
+        bw.write(username + "," + password + "," + role + "," + email + "," + name + "," + course);
+        bw.newLine();
+        bw.close();
+
+        System.out.println("Registered successfully!");
+    } catch (Exception e) {
+        System.out.println("Error saving user: " + e.getMessage());
     }
+}
 
     // 🔑 LOGIN (uses polymorphism)
     public void loginUser(Scanner sc) {
@@ -95,7 +106,9 @@ public class Internsync {
 
                     // 🔥 POLYMORPHISM
                     if (role.equals("student")) {
-                        currentUser = new Student(1, user, pass, data[3], "CS");
+                    String name = data.length > 4 ? data[4] : "";
+                    String course = data.length > 5 ? data[5] : "CS"; // default fallback
+                    currentUser = new Student(1, user, pass, data[3], name, course);
                     } else if (role.equals("company")) {
                         currentUser = new Company(1, user, pass, data[3], user);
                     } else {
