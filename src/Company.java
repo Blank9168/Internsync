@@ -22,7 +22,7 @@ public class Company {
         
     }
 
-    public void acceptStudent(Student student) {
+    public void acceptStudent(Student student) {""
         
     }
 
