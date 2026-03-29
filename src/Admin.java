@@ -4,7 +4,7 @@ import java.util.*;
 public class Admin extends User {
 
     public Admin(int userid, String username, String password, String email) {
-        super(userid, username, password, "admin", email);
+        super(userid, username, password, "admin", email, email, email);
     }
 
     @Override

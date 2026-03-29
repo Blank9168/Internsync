@@ -31,22 +31,30 @@ public class School {
 
     // View all registered students
     public void viewStudents() {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("users.txt"));
-            String line;
+    try {
+        BufferedReader br = new BufferedReader(new FileReader("users.txt"));
+        String line;
 
-            System.out.println("\n=== STUDENTS LIST ===");
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
+        System.out.println("\n=== STUDENTS LIST ===");
+        while ((line = br.readLine()) != null) {
+            String[] data = line.split(",");
 
-                if (data[2].equals("student")) {
-                    System.out.println("Username: " + data[0] + " | Email: " + data[3]);
-                }
+            if (data[2].equals("student")) {
+                String username = data[0];
+                String email = data[3];
+                String name = data.length > 4 ? data[4] : "";
+                String course = data.length > 5 ? data[5] : "";
+
+                System.out.println("Username: " + username +
+                                   " | Name: " + name +
+                                   " | Course: " + course +
+                                   " | Email: " + email);
             }
-
-            br.close();
-        } catch (Exception e) {
-            System.out.println("Error reading students.");
         }
+
+        br.close();
+    } catch (Exception e) {
+        System.out.println("Error reading students.");
     }
+}
 }
