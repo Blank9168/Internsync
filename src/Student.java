@@ -22,7 +22,9 @@ public class Student extends User {
         System.out.println("1. Browse Available Internships");
         System.out.println("2. Apply for an Internship");
         System.out.println("3. View My Applications");
-        System.out.println("4. Logout");
+        System.out.println("4. Withdraw an Application");
+        System.out.println("5. Change Password");
+        System.out.println("6. Logout");
         System.out.print("Choice: ");
     }
 
@@ -103,10 +105,7 @@ public class Student extends User {
                 }
                 br.close();
             }
-        } catch (Exception e) { 
-            System.out.println("Error checking applications: " + e.getMessage());
-            return;
-         }
+        } catch (Exception e) { /* ignore */ }
 
         // Generate app ID
         String appId = "APP" + System.currentTimeMillis();
@@ -120,6 +119,68 @@ public class Student extends User {
             System.out.println("\n✔ Successfully applied for: " + title + " at " + companyName);
         } catch (Exception e) {
             System.out.println("Error saving application: " + e.getMessage());
+        }
+    }
+
+    // Withdraw a PENDING application
+    public void withdrawApplication(Scanner sc) {
+        try {
+            File f = new File("applications.txt");
+            if (!f.exists()) { System.out.println("You have no applications to withdraw."); return; }
+
+            List<String[]> pending = new ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 8 && d[2].trim().equals(username) && d[7].trim().equals("PENDING")) {
+                    pending.add(d);
+                }
+            }
+            br.close();
+
+            if (pending.isEmpty()) {
+                System.out.println("You have no pending applications to withdraw.");
+                return;
+            }
+
+            System.out.println("\n========== PENDING APPLICATIONS ==========");
+            for (int i = 0; i < pending.size(); i++) {
+                String[] d = pending.get(i);
+                System.out.println("[" + (i + 1) + "] Company  : " + d[5].trim());
+                System.out.println("    Position : " + d[6].trim());
+                System.out.println("    App ID   : " + d[0].trim());
+                System.out.println("------------------------------------------");
+            }
+
+            System.out.print("Enter number to withdraw (0 to cancel): ");
+            int choice;
+            try {
+                choice = Integer.parseInt(sc.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input."); return;
+            }
+            if (choice == 0) return;
+            if (choice < 1 || choice > pending.size()) { System.out.println("Invalid selection."); return; }
+
+            String targetAppId = pending.get(choice - 1)[0].trim();
+
+            List<String> lines = new ArrayList<>();
+            br = new BufferedReader(new FileReader(f));
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d[0].trim().equals(targetAppId)) continue; // remove this line
+                lines.add(line);
+            }
+            br.close();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.close();
+
+            System.out.println("✔ Application withdrawn successfully.");
+        } catch (Exception e) {
+            System.out.println("Error withdrawing application: " + e.getMessage());
         }
     }
 
