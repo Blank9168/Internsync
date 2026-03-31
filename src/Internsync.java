@@ -106,7 +106,7 @@ public class Internsync {
             bw.write(username + "," + password + "," + role + "," + email + extraFields);
             bw.newLine();
             bw.close();
-            System.out.println("\n✔ Registered successfully! You can now login.");
+            System.out.println("\n Registered successfully! You can now login.");
         } catch (Exception e) {
             System.out.println("Error saving user: " + e.getMessage());
         }
@@ -169,7 +169,7 @@ public class Internsync {
                 return;
             }
 
-            System.out.println("\n✔ Login successful!");
+            System.out.println("\n Login successful!");
             runUserSession(currentUser, sc);
 
         } catch (Exception e) {
@@ -259,7 +259,7 @@ public class Internsync {
         } catch (Exception e) { /* ignore */ }
         return false;
     }
-    
+
     // Seed a default admin account on first run
     private void seedDefaultAdmin() {
         if (!userExists("admin")) {
