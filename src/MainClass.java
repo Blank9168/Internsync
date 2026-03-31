@@ -1,6 +1,6 @@
 public class MainClass {
     public static void main(String[] args) {
-        Internsync system = new Internsync("InternSync", "v2.0");
+        Internsync system = new Internsync("InternSync", "v3.0");
         system.startSystem();
     }
 }

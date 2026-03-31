@@ -19,7 +19,7 @@ public class Internsync {
         boolean running = true;
 
         System.out.println("╔══════════════════════════════╗");
-        System.out.println("║   " + systemName + " " + version + "           ║");
+        System.out.println("║       " + systemName + " " + version + "           ║");
         System.out.println("║  Internship Management System ║");
         System.out.println("╚══════════════════════════════╝");
 
