@@ -18,10 +18,10 @@ public class Internsync {
         Scanner sc = new Scanner(System.in);
         boolean running = true;
 
-        System.out.println("╔══════════════════════════════╗");
-        System.out.println("║       " + systemName + " " + version + "           ║");
-        System.out.println("║  Internship Management System ║");
-        System.out.println("╚══════════════════════════════╝");
+        System.out.println("╔════════════════════════════════╗");
+        System.out.println("║        " + systemName + " " + version + "         ║");
+        System.out.println("║  Internship Management System  ║");
+        System.out.println("╚════════════════════════════════╝");
 
         while (running) {
             System.out.println("\n========== MAIN MENU ==========");
