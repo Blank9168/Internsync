@@ -15,13 +15,14 @@ public class Internsync {
     //  SYSTEM ENTRY POINT
     // ─────────────────────────────────────────
     public void startSystem() {
+        seedDefaultAdmin();
         Scanner sc = new Scanner(System.in);
         boolean running = true;
 
-        System.out.println("╔════════════════════════════════╗");
-        System.out.println("║        " + systemName + " " + version + "         ║");
-        System.out.println("║  Internship Management System  ║");
-        System.out.println("╚════════════════════════════════╝");
+        System.out.println("╔══════════════════════════════╗");
+        System.out.println("║   " + systemName + " " + version + "           ║");
+        System.out.println("║  Internship Management System ║");
+        System.out.println("╚══════════════════════════════╝");
 
         while (running) {
             System.out.println("\n========== MAIN MENU ==========");
@@ -257,5 +258,22 @@ public class Internsync {
             br.close();
         } catch (Exception e) { /* ignore */ }
         return false;
+    }
+    
+    // Seed a default admin account on first run
+    private void seedDefaultAdmin() {
+        if (!userExists("admin")) {
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt", true));
+                // username,password,role,email,field1,field2
+                bw.write("admin,admin123,admin,admin@internsync.com,,");
+                bw.newLine();
+                bw.close();
+                System.out.println("[System] Default admin account created.");
+                System.out.println("[System] Username: admin | Password: admin123");
+            } catch (Exception e) {
+                System.out.println("Error seeding admin: " + e.getMessage());
+            }
+        }
     }
 }
