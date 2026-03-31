@@ -21,7 +21,9 @@ public class Company extends User {
         System.out.println("3. View Applicants");
         System.out.println("4. Accept / Reject Applicant");
         System.out.println("5. Close an Internship");
-        System.out.println("6. Logout");
+        System.out.println("6. Edit an Internship");
+        System.out.println("7. Change Password");
+        System.out.println("8. Logout");
         System.out.print("Choice: ");
     }
 
@@ -157,6 +159,72 @@ public class Company extends User {
             System.out.println("\n✔ Application " + appId + " has been " + newStatus + ".");
         } catch (Exception e) {
             System.out.println("Error updating application: " + e.getMessage());
+        }
+    }
+
+    // Edit an existing internship's title, description, or slots
+    public void editInternship(Scanner sc) {
+        viewMyInternships();
+        System.out.print("\nEnter Internship ID to edit (0 to cancel): ");
+        String id = sc.nextLine().trim();
+        if (id.equals("0")) return;
+
+        try {
+            // First verify the internship exists and belongs to this company
+            boolean found = false;
+            BufferedReader br = new BufferedReader(new FileReader("internships.txt"));
+            String line;
+            String[] target = null;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 6 && d[0].trim().equals(id) && d[1].trim().equalsIgnoreCase(companyName)) {
+                    target = d;
+                    found = true;
+                    break;
+                }
+            }
+            br.close();
+
+            if (!found) { System.out.println("Internship not found or does not belong to you."); return; }
+
+            System.out.println("\nWhat would you like to edit?");
+            System.out.println("1. Title    (current: " + target[2].trim() + ")");
+            System.out.println("2. Description (current: " + target[3].trim() + ")");
+            System.out.println("3. Slots    (current: " + target[4].trim() + ")");
+            System.out.print("Choice (0 to cancel): ");
+            String choice = sc.nextLine().trim();
+
+            int field;
+            switch (choice) {
+                case "1": field = 2; break;
+                case "2": field = 3; break;
+                case "3": field = 4; break;
+                default: System.out.println("Cancelled."); return;
+            }
+
+            System.out.print("New value: ");
+            String newValue = sc.nextLine().trim();
+            if (newValue.isEmpty()) { System.out.println("Value cannot be empty."); return; }
+
+            // Rewrite internships.txt with updated field
+            List<String> lines = new ArrayList<>();
+            br = new BufferedReader(new FileReader("internships.txt"));
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 6 && d[0].trim().equals(id) && d[1].trim().equalsIgnoreCase(companyName)) {
+                    d[field] = newValue;
+                    line = String.join("|", d);
+                }
+                lines.add(line);
+            }
+            br.close();
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.close();
+            System.out.println("✔ Internship updated successfully.");
+        } catch (Exception e) {
+            System.out.println("Error editing internship: " + e.getMessage());
         }
     }
 
