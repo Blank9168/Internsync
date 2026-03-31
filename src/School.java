@@ -23,8 +23,9 @@ public class School extends User {
         System.out.println("2. View All Student Applications");
         System.out.println("3. View Accepted Students");
         System.out.println("4. Endorse a Student");
-        System.out.println("5. Change Password");
-        System.out.println("6. Logout");
+        System.out.println("5. View Endorsements");
+        System.out.println("6. Change Password");
+        System.out.println("7. Logout");
         System.out.print("Choice: ");
     }
 
@@ -167,7 +168,7 @@ public class School extends User {
             bw.write(schoolName + "|" + studentUser + "|" + studentName + "|" + note + "|" + date);
             bw.newLine();
             bw.close();
-            System.out.println(" Endorsement recorded for " + studentName + " on " + date + ".");
+            System.out.println("✔ Endorsement recorded for " + studentName + " on " + date + ".");
         } catch (Exception e) {
             System.out.println("Error saving endorsement: " + e.getMessage());
         }

@@ -106,7 +106,7 @@ public class Internsync {
             bw.write(username + "," + password + "," + role + "," + email + extraFields);
             bw.newLine();
             bw.close();
-            System.out.println("\n Registered successfully! You can now login.");
+            System.out.println("\n✔ Registered successfully! You can now login.");
         } catch (Exception e) {
             System.out.println("Error saving user: " + e.getMessage());
         }
@@ -169,7 +169,7 @@ public class Internsync {
                 return;
             }
 
-            System.out.println("\n Login successful!");
+            System.out.println("\n✔ Login successful!");
             runUserSession(currentUser, sc);
 
         } catch (Exception e) {
@@ -234,8 +234,9 @@ public class Internsync {
                     case "2": sch.viewApplications();     break;
                     case "3": sch.viewAcceptedStudents(); break;
                     case "4": sch.endorseStudent(sc);     break;
-                    case "5": sch.changePassword(sc);     break;
-                    case "6": loggedIn = false; System.out.println("Logged out."); break;
+                    case "5": sch.viewEndorsements();     break;
+                    case "6": sch.changePassword(sc);     break;
+                    case "7": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
             }
@@ -259,7 +260,6 @@ public class Internsync {
         } catch (Exception e) { /* ignore */ }
         return false;
     }
-
     // Seed a default admin account on first run
     private void seedDefaultAdmin() {
         if (!userExists("admin")) {
