@@ -1,13 +1,12 @@
 import java.io.*;
 
-public class School {
+public class School extends User {
 
-    private int schoolId;
     private String schoolName;
     private String address;
 
-    public School(int schoolId, String schoolName, String address) {
-        this.schoolId = schoolId;
+    public School(int userid, String username, String password, String email, String schoolName, String address) {
+        super(userid, username, password, "school", email);
         this.schoolName = schoolName;
         this.address = address;
     }

@@ -3,7 +3,7 @@ public class Student extends User {
     private String course;
 
     public Student(int id, String username, String password, String email, String name, String course) {
-        super(id, username, password, "student", email, name, course);
+        super(id, username, password, "student", email);
         this.name = name;
         this.course = course;
     }

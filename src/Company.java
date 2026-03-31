@@ -5,7 +5,7 @@ public class Company extends User {
     private String companyName;
 
     public Company(int userid, String username, String password, String email, String companyName) {
-        super(userid, username, password, "company", email, companyName, companyName);
+        super(userid, username, password, "company", email);
         this.companyName = companyName;
     }
 
