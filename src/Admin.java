@@ -17,7 +17,9 @@ public class Admin extends User {
         System.out.println("3. Delete User");
         System.out.println("4. View All Internships");
         System.out.println("5. View All Applications");
-        System.out.println("6. Logout");
+        System.out.println("6. Reset User Password");
+        System.out.println("7. Change My Password");
+        System.out.println("8. Logout");
         System.out.print("Choice: ");
     }
 
@@ -121,6 +123,48 @@ public class Admin extends User {
             System.out.println("✔ User '" + target + "' deleted.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Reset any user's password
+    public void resetUserPassword(Scanner sc) {
+        viewUsers();
+        System.out.print("Enter username to reset password (0 to cancel): ");
+        String target = sc.nextLine().trim();
+        if (target.equals("0")) return;
+
+        System.out.print("Enter new password for '" + target + "': ");
+        String newPass = sc.nextLine().trim();
+        if (newPass.isEmpty()) { System.out.println("Password cannot be empty."); return; }
+
+        System.out.print("Confirm new password: ");
+        String confirm = sc.nextLine().trim();
+        if (!newPass.equals(confirm)) { System.out.println("Passwords do not match."); return; }
+
+        try {
+            List<String> lines = new ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader("users.txt"));
+            String line;
+            boolean found = false;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split(",");
+                if (d[0].trim().equals(target)) {
+                    d[1] = newPass;
+                    line = String.join(",", d);
+                    found = true;
+                }
+                lines.add(line);
+            }
+            br.close();
+
+            if (!found) { System.out.println("User not found."); return; }
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.close();
+            System.out.println("✔ Password reset successfully for user: " + target);
+        } catch (Exception e) {
+            System.out.println("Error resetting password: " + e.getMessage());
         }
     }
 
