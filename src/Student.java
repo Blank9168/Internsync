@@ -103,7 +103,10 @@ public class Student extends User {
                 }
                 br.close();
             }
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception e) { 
+            System.out.println("Error checking applications: " + e.getMessage());
+            return;
+         }
 
         // Generate app ID
         String appId = "APP" + System.currentTimeMillis();
