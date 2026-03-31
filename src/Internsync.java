@@ -18,10 +18,10 @@ public class Internsync {
         Scanner sc = new Scanner(System.in);
         boolean running = true;
 
-        System.out.println("╔══════════════════════════════════╗");
-        System.out.println("║        " + systemName + " " + version + "           ║");
-        System.out.println("║  Internship Management System    ║");
-        System.out.println("╚══════════════════════════════════╝");
+        System.out.println("╔══════════════════════════════╗");
+        System.out.println("║   " + systemName + " " + version + "           ║");
+        System.out.println("║  Internship Management System ║");
+        System.out.println("╚══════════════════════════════╝");
 
         while (running) {
             System.out.println("\n========== MAIN MENU ==========");
@@ -168,7 +168,7 @@ public class Internsync {
                 return;
             }
 
-            System.out.println("\n Login successful!");
+            System.out.println("\n✔ Login successful!");
             runUserSession(currentUser, sc);
 
         } catch (Exception e) {
@@ -189,44 +189,52 @@ public class Internsync {
             if (currentUser instanceof Student) {
                 Student s = (Student) currentUser;
                 switch (option) {
-                    case "1": s.browseInternships();   break;
-                    case "2": s.applyInternship(sc);   break;
-                    case "3": s.viewMyApplications();  break;
-                    case "4": loggedIn = false; System.out.println("Logged out."); break;
+                    case "1": s.browseInternships();      break;
+                    case "2": s.applyInternship(sc);      break;
+                    case "3": s.viewMyApplications();     break;
+                    case "4": s.withdrawApplication(sc);  break;
+                    case "5": s.changePassword(sc);       break;
+                    case "6": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
 
             } else if (currentUser instanceof Company) {
                 Company c = (Company) currentUser;
                 switch (option) {
-                    case "1": c.postInternship(sc);          break;
-                    case "2": c.viewMyInternships();         break;
-                    case "3": c.viewApplicants();            break;
-                    case "4": c.updateApplicationStatus(sc); break;
-                    case "5": c.closeInternship(sc);         break;
-                    case "6": loggedIn = false; System.out.println("Logged out."); break;
+                    case "1": c.postInternship(sc);           break;
+                    case "2": c.viewMyInternships();          break;
+                    case "3": c.viewApplicants();             break;
+                    case "4": c.updateApplicationStatus(sc);  break;
+                    case "5": c.closeInternship(sc);          break;
+                    case "6": c.editInternship(sc);           break;
+                    case "7": c.changePassword(sc);           break;
+                    case "8": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
 
             } else if (currentUser instanceof Admin) {
                 Admin a = (Admin) currentUser;
                 switch (option) {
-                    case "1": a.viewUsers();           break;
-                    case "2": a.changeUserRole(sc);    break;
-                    case "3": a.deleteUser(sc);        break;
-                    case "4": a.viewAllInternships();  break;
-                    case "5": a.viewAllApplications(); break;
-                    case "6": loggedIn = false; System.out.println("Logged out."); break;
+                    case "1": a.viewUsers();              break;
+                    case "2": a.changeUserRole(sc);       break;
+                    case "3": a.deleteUser(sc);           break;
+                    case "4": a.viewAllInternships();     break;
+                    case "5": a.viewAllApplications();    break;
+                    case "6": a.resetUserPassword(sc);    break;
+                    case "7": a.changePassword(sc);       break;
+                    case "8": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
 
             } else if (currentUser instanceof School) {
                 School sch = (School) currentUser;
                 switch (option) {
-                    case "1": sch.viewStudents();          break;
-                    case "2": sch.viewApplications();      break;
-                    case "3": sch.viewAcceptedStudents();  break;
-                    case "4": loggedIn = false; System.out.println("Logged out."); break;
+                    case "1": sch.viewStudents();         break;
+                    case "2": sch.viewApplications();     break;
+                    case "3": sch.viewAcceptedStudents(); break;
+                    case "4": sch.endorseStudent(sc);     break;
+                    case "5": sch.changePassword(sc);     break;
+                    case "6": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
             }
@@ -247,9 +255,7 @@ public class Internsync {
                 if (d[0].trim().equalsIgnoreCase(username)) { br.close(); return true; }
             }
             br.close();
-        } catch (Exception e) { 
-            System.out.println("Error checking users: " + e.getMessage());
-         }
+        } catch (Exception e) { /* ignore */ }
         return false;
     }
 }
