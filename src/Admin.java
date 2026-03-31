@@ -90,7 +90,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Role updated to '" + newRole + "' for user: " + targetUsername);
+            System.out.println(" Role updated to '" + newRole + "' for user: " + targetUsername);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -120,7 +120,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ User '" + target + "' deleted.");
+            System.out.println(" User '" + target + "' deleted.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -162,7 +162,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Password reset successfully for user: " + target);
+            System.out.println(" Password reset successfully for user: " + target);
         } catch (Exception e) {
             System.out.println("Error resetting password: " + e.getMessage());
         }

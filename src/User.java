@@ -52,7 +52,7 @@ public abstract class User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
             this.password = newPass;
-            System.out.println("✔ Password changed successfully.");
+            System.out.println(" Password changed successfully.");
         } catch (Exception e) {
             System.out.println("Error changing password: " + e.getMessage());
         }

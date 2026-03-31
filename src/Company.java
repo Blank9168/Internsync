@@ -44,7 +44,7 @@ public class Company extends User {
             bw.write(id + "|" + companyName + "|" + title + "|" + desc + "|" + slots + "|open");
             bw.newLine();
             bw.close();
-            System.out.println("\n✔ Internship posted successfully! (ID: " + id + ")");
+            System.out.println("\n Internship posted successfully! (ID: " + id + ")");
         } catch (Exception e) {
             System.out.println("Error posting internship: " + e.getMessage());
         }
@@ -156,7 +156,7 @@ public class Company extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
 
-            System.out.println("\n✔ Application " + appId + " has been " + newStatus + ".");
+            System.out.println("\n Application " + appId + " has been " + newStatus + ".");
         } catch (Exception e) {
             System.out.println("Error updating application: " + e.getMessage());
         }
@@ -222,7 +222,7 @@ public class Company extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Internship updated successfully.");
+            System.out.println(" Internship updated successfully.");
         } catch (Exception e) {
             System.out.println("Error editing internship: " + e.getMessage());
         }
@@ -256,7 +256,7 @@ public class Company extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Internship closed.");
+            System.out.println(" Internship closed.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }

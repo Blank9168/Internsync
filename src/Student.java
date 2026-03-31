@@ -116,7 +116,7 @@ public class Student extends User {
             bw.write(appId + "|" + internshipId + "|" + username + "|" + name + "|" + course + "|" + companyName + "|" + title + "|PENDING");
             bw.newLine();
             bw.close();
-            System.out.println("\n✔ Successfully applied for: " + title + " at " + companyName);
+            System.out.println("\n Successfully applied for: " + title + " at " + companyName);
         } catch (Exception e) {
             System.out.println("Error saving application: " + e.getMessage());
         }
@@ -178,7 +178,7 @@ public class Student extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
 
-            System.out.println("✔ Application withdrawn successfully.");
+            System.out.println(" Application withdrawn successfully.");
         } catch (Exception e) {
             System.out.println("Error withdrawing application: " + e.getMessage());
         }

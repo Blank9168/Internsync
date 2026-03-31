@@ -167,7 +167,7 @@ public class School extends User {
             bw.write(schoolName + "|" + studentUser + "|" + studentName + "|" + note + "|" + date);
             bw.newLine();
             bw.close();
-            System.out.println("✔ Endorsement recorded for " + studentName + " on " + date + ".");
+            System.out.println(" Endorsement recorded for " + studentName + " on " + date + ".");
         } catch (Exception e) {
             System.out.println("Error saving endorsement: " + e.getMessage());
         }
