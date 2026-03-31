@@ -247,7 +247,9 @@ public class Internsync {
                 if (d[0].trim().equalsIgnoreCase(username)) { br.close(); return true; }
             }
             br.close();
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception e) { 
+            System.out.println("Error checking users: " + e.getMessage());
+         }
         return false;
     }
 }
