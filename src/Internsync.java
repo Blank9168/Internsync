@@ -194,8 +194,10 @@ public class Internsync {
                     case "2": s.applyInternship(sc);      break;
                     case "3": s.viewMyApplications();     break;
                     case "4": s.withdrawApplication(sc);  break;
-                    case "5": s.changePassword(sc);       break;
-                    case "6": loggedIn = false; System.out.println("Logged out."); break;
+                    case "5": s.uploadResume(sc);         break;
+                    case "6": s.viewResumeStatus();       break;
+                    case "7": s.changePassword(sc);       break;
+                    case "8": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
 
@@ -208,8 +210,9 @@ public class Internsync {
                     case "4": c.updateApplicationStatus(sc);  break;
                     case "5": c.closeInternship(sc);          break;
                     case "6": c.editInternship(sc);           break;
-                    case "7": c.changePassword(sc);           break;
-                    case "8": loggedIn = false; System.out.println("Logged out."); break;
+                    case "7": c.viewApplicantResume(sc);      break;
+                    case "8": c.changePassword(sc);           break;
+                    case "9": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
 
@@ -222,8 +225,9 @@ public class Internsync {
                     case "4": a.viewAllInternships();     break;
                     case "5": a.viewAllApplications();    break;
                     case "6": a.resetUserPassword(sc);    break;
-                    case "7": a.changePassword(sc);       break;
-                    case "8": loggedIn = false; System.out.println("Logged out."); break;
+                    case "7": a.manageResumes(sc);        break;
+                    case "8": a.changePassword(sc);       break;
+                    case "9": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
 
@@ -235,8 +239,9 @@ public class Internsync {
                     case "3": sch.viewAcceptedStudents(); break;
                     case "4": sch.endorseStudent(sc);     break;
                     case "5": sch.viewEndorsements();     break;
-                    case "6": sch.changePassword(sc);     break;
-                    case "7": loggedIn = false; System.out.println("Logged out."); break;
+                    case "6": sch.reviewResumes(sc);      break;
+                    case "7": sch.changePassword(sc);     break;
+                    case "8": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
             }
