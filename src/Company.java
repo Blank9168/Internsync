@@ -30,19 +30,23 @@ public class Company extends User {
 
     // Post a new internship
     public void postInternship(Scanner sc) {
-        System.out.print("Internship Title: ");
+        System.out.print("Internship Title  : ");
         String title = sc.nextLine().trim();
-        System.out.print("Description     : ");
+        System.out.print("Description       : ");
         String desc  = sc.nextLine().trim();
-        System.out.print("Available Slots : ");
+        System.out.print("Available Slots   : ");
         String slots = sc.nextLine().trim();
+        System.out.println("Required Skills (comma-separated, e.g. Java,SQL,Excel)");
+        System.out.println("  Leave blank if none required.");
+        System.out.print("Required Skills   : ");
+        String skills = sc.nextLine().trim().replace("|", "");
 
         String id = "INT" + System.currentTimeMillis();
 
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt", true));
-            // id|company|title|description|slots|status
-            bw.write(id + "|" + companyName + "|" + title + "|" + desc + "|" + slots + "|open");
+            // id|company|title|description|slots|status|skills
+            bw.write(id + "|" + companyName + "|" + title + "|" + desc + "|" + slots + "|open|" + skills);
             bw.newLine();
             bw.close();
             System.out.println("\n✔ Internship posted successfully! (ID: " + id + ")");
@@ -64,11 +68,12 @@ public class Company extends User {
             while ((line = br.readLine()) != null) {
                 String[] d = line.split("\\|");
                 if (d.length >= 6 && d[1].trim().equalsIgnoreCase(companyName)) {
-                    System.out.println("ID      : " + d[0].trim());
-                    System.out.println("Title   : " + d[2].trim());
-                    System.out.println("Details : " + d[3].trim());
-                    System.out.println("Slots   : " + d[4].trim());
-                    System.out.println("Status  : " + d[5].trim());
+                    System.out.println("ID        : " + d[0].trim());
+                    System.out.println("Title     : " + d[2].trim());
+                    System.out.println("Details   : " + d[3].trim());
+                    System.out.println("Slots     : " + d[4].trim());
+                    System.out.println("Status    : " + d[5].trim());
+                    System.out.println("Req.Skills: " + (d.length >= 7 && !d[6].trim().isEmpty() ? d[6].trim() : "None"));
                     System.out.println("------------------------------------");
                     found = true;
                 }
@@ -189,9 +194,10 @@ public class Company extends User {
             if (!found) { System.out.println("Internship not found or does not belong to you."); return; }
 
             System.out.println("\nWhat would you like to edit?");
-            System.out.println("1. Title    (current: " + target[2].trim() + ")");
+            System.out.println("1. Title       (current: " + target[2].trim() + ")");
             System.out.println("2. Description (current: " + target[3].trim() + ")");
-            System.out.println("3. Slots    (current: " + target[4].trim() + ")");
+            System.out.println("3. Slots       (current: " + target[4].trim() + ")");
+            System.out.println("4. Req. Skills (current: " + (target.length >= 7 && !target[6].trim().isEmpty() ? target[6].trim() : "None") + ")");
             System.out.print("Choice (0 to cancel): ");
             String choice = sc.nextLine().trim();
 
@@ -200,19 +206,24 @@ public class Company extends User {
                 case "1": field = 2; break;
                 case "2": field = 3; break;
                 case "3": field = 4; break;
+                case "4": field = 6; break;
                 default: System.out.println("Cancelled."); return;
             }
 
-            System.out.print("New value: ");
-            String newValue = sc.nextLine().trim();
-            if (newValue.isEmpty()) { System.out.println("Value cannot be empty."); return; }
+            System.out.print("New value" + (field == 6 ? " (comma-separated skills)" : "") + ": ");
+            String newValue = sc.nextLine().trim().replace("|", "");
+            if (field != 6 && newValue.isEmpty()) { System.out.println("Value cannot be empty."); return; }
 
             // Rewrite internships.txt with updated field
+            // Ensure row has 7 fields (pad with empty skills if older entry)
             List<String> lines = new ArrayList<>();
             br = new BufferedReader(new FileReader("internships.txt"));
             while ((line = br.readLine()) != null) {
                 String[] d = line.split("\\|");
                 if (d.length >= 6 && d[0].trim().equals(id) && d[1].trim().equalsIgnoreCase(companyName)) {
+                    // Extend array to 7 if needed
+                    if (d.length < 7) d = Arrays.copyOf(d, 7);
+                    if (d[6] == null) d[6] = "";
                     d[field] = newValue;
                     line = String.join("|", d);
                 }
