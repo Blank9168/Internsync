@@ -30,7 +30,26 @@ public class School extends User {
         System.out.print("Choice: ");
     }
 
-    // View all registered students
+    // Helper: load skills for a student username
+    private String loadStudentSkills(String studentUser) {
+        try {
+            File f = new File("student_skills.txt");
+            if (!f.exists()) return "(none)";
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 2 && d[0].trim().equalsIgnoreCase(studentUser)) {
+                    br.close();
+                    return d[1].trim().isEmpty() ? "(none)" : d[1].trim();
+                }
+            }
+            br.close();
+        } catch (Exception e) { /* ignore */ }
+        return "(none)";
+    }
+
+    // View all registered students — includes their skills
     public void viewStudents() {
         try {
             File f = new File("users.txt");
@@ -43,10 +62,13 @@ public class School extends User {
             while ((line = br.readLine()) != null) {
                 String[] d = line.split(",");
                 if (d.length >= 3 && d[2].trim().equalsIgnoreCase("student")) {
-                    System.out.println("Username : " + d[0].trim());
+                    String uname  = d[0].trim();
+                    String skills = loadStudentSkills(uname);
+                    System.out.println("Username : " + uname);
                     System.out.println("Email    : " + (d.length > 3 ? d[3].trim() : "N/A"));
                     System.out.println("Name     : " + (d.length > 4 ? d[4].trim() : "N/A"));
                     System.out.println("Course   : " + (d.length > 5 ? d[5].trim() : "N/A"));
+                    System.out.println("Skills   : " + skills);
                     System.out.println("-----------------------------------------");
                     count++;
                 }
@@ -169,7 +191,7 @@ public class School extends User {
             bw.write(schoolName + "|" + studentUser + "|" + studentName + "|" + note + "|" + date);
             bw.newLine();
             bw.close();
-            System.out.println("✔ Endorsement recorded for " + studentName + " on " + date + ".");
+            System.out.println(" Endorsement recorded for " + studentName + " on " + date + ".");
         } catch (Exception e) {
             System.out.println("Error saving endorsement: " + e.getMessage());
         }
@@ -260,7 +282,7 @@ public class School extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter(statusFile));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Resume of '" + studentUser + "' has been " + newStatus + ".");
+            System.out.println(" Resume of '" + studentUser + "' has been " + newStatus + ".");
         } catch (Exception e) {
             System.out.println("Error updating resume status: " + e.getMessage());
         }
