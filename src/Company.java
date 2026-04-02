@@ -23,8 +23,9 @@ public class Company extends User {
         System.out.println("5. Close an Internship");
         System.out.println("6. Edit an Internship");
         System.out.println("7. View Applicant Resume");
-        System.out.println("8. Change Password");
-        System.out.println("9. Logout");
+        System.out.println("8. Filter Applicants by Skills");
+        System.out.println("9. Change Password");
+        System.out.println("10. Logout");
         System.out.print("Choice: ");
     }
 
@@ -49,7 +50,7 @@ public class Company extends User {
             bw.write(id + "|" + companyName + "|" + title + "|" + desc + "|" + slots + "|open|" + skills);
             bw.newLine();
             bw.close();
-            System.out.println("\n✔ Internship posted successfully! (ID: " + id + ")");
+            System.out.println("\n Internship posted successfully! (ID: " + id + ")");
         } catch (Exception e) {
             System.out.println("Error posting internship: " + e.getMessage());
         }
@@ -85,7 +86,26 @@ public class Company extends User {
         }
     }
 
-    // View all applicants for this company's internships
+    // Helper: load skills for a given student username from student_skills.txt
+    private String loadStudentSkills(String studentUser) {
+        try {
+            File f = new File("student_skills.txt");
+            if (!f.exists()) return "(no skills listed)";
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 2 && d[0].trim().equalsIgnoreCase(studentUser))  {
+                    br.close();
+                    return d[1].trim().isEmpty() ? "(no skills listed)" : d[1].trim();
+                }
+            }
+            br.close();
+        } catch (Exception e) { /* ignore */ }
+        return "(no skills listed)";
+    }
+
+    // View all applicants for this company's internships — shows skills inline
     public List<String[]> viewApplicants() {
         List<String[]> applicants = new ArrayList<>();
         try {
@@ -100,9 +120,11 @@ public class Company extends User {
                 // appId|internshipId|studentUsername|studentName|course|company|title|status
                 String[] d = line.split("\\|");
                 if (d.length >= 8 && d[5].trim().equalsIgnoreCase(companyName)) {
+                    String studentSkills = loadStudentSkills(d[2].trim());
                     System.out.println("[" + count + "] App ID   : " + d[0].trim());
                     System.out.println("    Student  : " + d[3].trim() + " (" + d[4].trim() + ")");
                     System.out.println("    Position : " + d[6].trim());
+                    System.out.println("    Skills   : " + studentSkills);
                     System.out.println("    Status   : " + d[7].trim());
                     System.out.println("--------------------------------");
                     applicants.add(d);
@@ -115,6 +137,127 @@ public class Company extends User {
             System.out.println("Error: " + e.getMessage());
         }
         return applicants;
+    }
+
+    // Filter applicants by skill match against a specific internship's required skills
+    public void filterApplicantsBySkills(Scanner sc) {
+        // First show this company's internships to pick one
+        List<String[]> myInternships = new ArrayList<>();
+        try {
+            File f = new File("internships.txt");
+            if (!f.exists()) { System.out.println("No internships posted."); return; }
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            int count = 1;
+            System.out.println("\n========== SELECT INTERNSHIP TO FILTER BY ==========");
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 6 && d[1].trim().equalsIgnoreCase(companyName)) {
+                    String reqSkills = (d.length >= 7 && !d[6].trim().isEmpty()) ? d[6].trim() : "None";
+                    System.out.println("[" + count + "] " + d[2].trim() + " | Req.Skills: " + reqSkills);
+                    myInternships.add(d);
+                    count++;
+                }
+            }
+            br.close();
+        } catch (Exception e) { System.out.println("Error: " + e.getMessage()); return; }
+
+        if (myInternships.isEmpty()) { System.out.println("No internships found."); return; }
+
+        System.out.print("Enter internship number (0 to cancel): ");
+        int pick;
+        try { pick = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("Invalid input."); return; }
+        if (pick == 0) return;
+        if (pick < 1 || pick > myInternships.size()) { System.out.println("Invalid selection."); return; }
+
+        String[] chosen = myInternships.get(pick - 1);
+        String internshipId = chosen[0].trim();
+        String internshipTitle = chosen[2].trim();
+        String reqSkillsRaw = (chosen.length >= 7 && !chosen[6].trim().isEmpty()) ? chosen[6].trim() : "";
+
+        if (reqSkillsRaw.isEmpty()) {
+            System.out.println("This internship has no required skills set. Cannot filter.");
+            return;
+        }
+
+        List<String> required = new ArrayList<>();
+        for (String s : reqSkillsRaw.split(",")) required.add(s.trim().toLowerCase());
+
+        // Load all applicants for this internship
+        try {
+            File f = new File("applications.txt");
+            if (!f.exists()) { System.out.println("No applications yet."); return; }
+
+            // Build two lists: matched and unmatched
+            List<String[]> matched   = new ArrayList<>();
+            List<String[]> unmatched = new ArrayList<>();
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 8 && d[1].trim().equals(internshipId) && d[5].trim().equalsIgnoreCase(companyName)) {
+                    String studentUser = d[2].trim();
+                    String skillsRaw   = loadStudentSkills(studentUser);
+                    List<String> studentSkills = new ArrayList<>();
+                    if (!skillsRaw.equals("(no skills listed)"))
+                        for (String s : skillsRaw.split(",")) studentSkills.add(s.trim().toLowerCase());
+
+                    int matchCount = 0;
+                    for (String req : required) {
+                        for (String mine : studentSkills) {
+                            if (mine.contains(req) || req.contains(mine)) { matchCount++; break; }
+                        }
+                    }
+                    // Store match count as extra element for display
+                    String[] extended = Arrays.copyOf(d, d.length + 2);
+                    extended[d.length]     = skillsRaw;
+                    extended[d.length + 1] = String.valueOf(matchCount);
+                    if (matchCount > 0) matched.add(extended);
+                    else                unmatched.add(extended);
+                }
+            }
+            br.close();
+
+            System.out.println("\n========== SKILL-MATCHED APPLICANTS: " + internshipTitle + " ==========");
+            System.out.println("Required skills: " + reqSkillsRaw);
+            System.out.println("--------------------------------------------------------------");
+
+            if (matched.isEmpty() && unmatched.isEmpty()) {
+                System.out.println("No applicants for this internship.");
+                return;
+            }
+
+            int count = 1;
+            if (!matched.isEmpty()) {
+                System.out.println("--- SKILL MATCHES (sorted by match count) ---");
+                matched.sort((a, b) -> Integer.parseInt(b[b.length - 1]) - Integer.parseInt(a[a.length - 1]));
+                for (String[] d : matched) {
+                    int mc = Integer.parseInt(d[d.length - 1]);
+                    System.out.println("[" + count + "] *** MATCH: " + mc + "/" + required.size() + " skills ***");
+                    System.out.println("    Student : " + d[3].trim() + " (" + d[4].trim() + ")");
+                    System.out.println("    Skills  : " + d[d.length - 2]);
+                    System.out.println("    Status  : " + d[7].trim());
+                    System.out.println("--------------------------------------------------------------");
+                    count++;
+                }
+            }
+
+            if (!unmatched.isEmpty()) {
+                System.out.println("--- NO SKILL MATCH ---");
+                for (String[] d : unmatched) {
+                    System.out.println("[" + count + "] Student : " + d[3].trim() + " (" + d[4].trim() + ")");
+                    System.out.println("    Skills  : " + d[d.length - 2]);
+                    System.out.println("    Status  : " + d[7].trim());
+                    System.out.println("--------------------------------------------------------------");
+                    count++;
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error filtering applicants: " + e.getMessage());
+        }
     }
 
     // Accept or reject an applicant
@@ -162,7 +305,7 @@ public class Company extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
 
-            System.out.println("\n✔ Application " + appId + " has been " + newStatus + ".");
+            System.out.println("\n Application " + appId + " has been " + newStatus + ".");
         } catch (Exception e) {
             System.out.println("Error updating application: " + e.getMessage());
         }
@@ -234,7 +377,7 @@ public class Company extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Internship updated successfully.");
+            System.out.println(" Internship updated successfully.");
         } catch (Exception e) {
             System.out.println("Error editing internship: " + e.getMessage());
         }
@@ -268,7 +411,7 @@ public class Company extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Internship closed.");
+            System.out.println(" Internship closed.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
