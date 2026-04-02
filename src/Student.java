@@ -23,9 +23,118 @@ public class Student extends User {
         System.out.println("2. Apply for an Internship");
         System.out.println("3. View My Applications");
         System.out.println("4. Withdraw an Application");
-        System.out.println("5. Change Password");
-        System.out.println("6. Logout");
+        System.out.println("5. Upload / Re-upload Resume (PDF)");
+        System.out.println("6. View My Resume Status");
+        System.out.println("7. Change Password");
+        System.out.println("8. Logout");
         System.out.print("Choice: ");
+    }
+
+    // Upload or re-upload a PDF resume
+    public void uploadResume(Scanner sc) {
+        System.out.println("\n========== UPLOAD RESUME ==========");
+        System.out.println("Enter the full path to your PDF file.");
+        System.out.println("Example: C:\\Users\\Juan\\Documents\\resume.pdf");
+        System.out.print("File path: ");
+        String inputPath = sc.nextLine().trim();
+
+        if (inputPath.isEmpty()) { System.out.println("No path entered. Cancelled."); return; }
+
+        File source = new File(inputPath);
+        if (!source.exists()) {
+            System.out.println("File not found: " + inputPath);
+            return;
+        }
+        if (!source.getName().toLowerCase().endsWith(".pdf")) {
+            System.out.println("Only PDF files are accepted.");
+            return;
+        }
+
+        // Create resumes directory if it doesn't exist
+        File resumeDir = new File("resumes");
+        if (!resumeDir.exists()) resumeDir.mkdir();
+
+        File dest = new File("resumes/" + username + ".pdf");
+
+        // Copy file bytes
+        try (FileInputStream fis = new FileInputStream(source);
+             FileOutputStream fos = new FileOutputStream(dest)) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
+        } catch (Exception e) {
+            System.out.println("Error copying file: " + e.getMessage());
+            return;
+        }
+
+        // Update or insert entry in resume_status.txt
+        // Format: username|filePath|schoolStatus|schoolNote|uploadDate
+        String date = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date());
+        String newEntry = username + "|" + dest.getPath() + "|PENDING|--|" + date;
+
+        try {
+            File statusFile = new File("resume_status.txt");
+            List<String> lines = new ArrayList<>();
+            boolean found = false;
+
+            if (statusFile.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(statusFile));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] d = line.split("\\|");
+                    if (d[0].trim().equals(username)) {
+                        lines.add(newEntry); // replace old entry
+                        found = true;
+                    } else {
+                        lines.add(line);
+                    }
+                }
+                br.close();
+            }
+            if (!found) lines.add(newEntry);
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(statusFile));
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.close();
+
+            System.out.println("✔ Resume uploaded successfully to: " + dest.getPath());
+            System.out.println("  Status reset to PENDING for school review.");
+        } catch (Exception e) {
+            System.out.println("Error updating resume status: " + e.getMessage());
+        }
+    }
+
+    // View own resume submission status
+    public void viewResumeStatus() {
+        System.out.println("\n========== MY RESUME STATUS ==========");
+        try {
+            File f = new File("resume_status.txt");
+            if (!f.exists()) { System.out.println("You have not uploaded a resume yet."); return; }
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            boolean found = false;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                // username|filePath|schoolStatus|schoolNote|uploadDate
+                if (d.length >= 5 && d[0].trim().equals(username)) {
+                    System.out.println("File      : " + d[1].trim());
+                    System.out.println("Uploaded  : " + d[4].trim());
+                    String status = d[2].trim();
+                    if (status.equals("APPROVED"))      System.out.println("Status    : APPROVED by school");
+                    else if (status.equals("REJECTED")) System.out.println("Status    : REJECTED by school");
+                    else                                System.out.println("Status    : PENDING school review");
+                    System.out.println("Note      : " + d[3].trim());
+                    found = true;
+                }
+            }
+            br.close();
+            if (!found) System.out.println("You have not uploaded a resume yet.");
+        } catch (Exception e) {
+            System.out.println("Error reading resume status: " + e.getMessage());
+        }
     }
 
     // Browse all internships from internships.txt
@@ -63,8 +172,48 @@ public class Student extends User {
         return list;
     }
 
+    // Helper: check if this student's resume is APPROVED
+    private String getResumeStatus() {
+        try {
+            File f = new File("resume_status.txt");
+            if (!f.exists()) return "NONE";
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 3 && d[0].trim().equals(username)) {
+                    br.close();
+                    return d[2].trim(); // PENDING / APPROVED / REJECTED
+                }
+            }
+            br.close();
+        } catch (Exception e) { /* ignore */ }
+        return "NONE";
+    }
+
     // Apply for an internship by title
     public void applyInternship(Scanner sc) {
+        // Resume gate: must be APPROVED before applying
+        String resumeStatus = getResumeStatus();
+        if (resumeStatus.equals("NONE")) {
+            System.out.println("\n✘ You cannot apply yet.");
+            System.out.println("  You have not uploaded a resume.");
+            System.out.println("  Please upload your PDF resume first (option 5).");
+            return;
+        }
+        if (resumeStatus.equals("PENDING")) {
+            System.out.println("\n✘ You cannot apply yet.");
+            System.out.println("  Your resume is still awaiting school approval.");
+            System.out.println("  Please wait for the school to review your resume.");
+            return;
+        }
+        if (resumeStatus.equals("REJECTED")) {
+            System.out.println("\n✘ You cannot apply yet.");
+            System.out.println("  Your resume was REJECTED by the school.");
+            System.out.println("  Please re-upload a revised resume (option 5) and wait for re-approval.");
+            return;
+        }
+
         List<String[]> internships = browseInternships();
         if (internships.isEmpty()) return;
 
@@ -116,7 +265,7 @@ public class Student extends User {
             bw.write(appId + "|" + internshipId + "|" + username + "|" + name + "|" + course + "|" + companyName + "|" + title + "|PENDING");
             bw.newLine();
             bw.close();
-            System.out.println("\n Successfully applied for: " + title + " at " + companyName);
+            System.out.println("\n✔ Successfully applied for: " + title + " at " + companyName);
         } catch (Exception e) {
             System.out.println("Error saving application: " + e.getMessage());
         }
@@ -178,7 +327,7 @@ public class Student extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
 
-            System.out.println(" Application withdrawn successfully.");
+            System.out.println("✔ Application withdrawn successfully.");
         } catch (Exception e) {
             System.out.println("Error withdrawing application: " + e.getMessage());
         }
