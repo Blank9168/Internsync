@@ -19,8 +19,9 @@ public class Admin extends User {
         System.out.println("5. View All Applications");
         System.out.println("6. Reset User Password");
         System.out.println("7. Manage Student Resumes");
-        System.out.println("8. Change My Password");
-        System.out.println("9. Logout");
+        System.out.println("8. View All Student Skills");
+        System.out.println("9. Change My Password");
+        System.out.println("10. Logout");
         System.out.print("Choice: ");
     }
 
@@ -91,7 +92,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Role updated to '" + newRole + "' for user: " + targetUsername);
+            System.out.println(" Role updated to '" + newRole + "' for user: " + targetUsername);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -121,7 +122,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ User '" + target + "' deleted.");
+            System.out.println(" User '" + target + "' deleted.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -163,7 +164,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println("✔ Password reset successfully for user: " + target);
+            System.out.println(" Password reset successfully for user: " + target);
         } catch (Exception e) {
             System.out.println("Error resetting password: " + e.getMessage());
         }
@@ -181,16 +182,48 @@ public class Admin extends User {
             while ((line = br.readLine()) != null) {
                 String[] d = line.split("\\|");
                 if (d.length >= 6) {
-                    System.out.println("ID      : " + d[0].trim());
-                    System.out.println("Company : " + d[1].trim());
-                    System.out.println("Title   : " + d[2].trim());
-                    System.out.println("Details : " + d[3].trim());
-                    System.out.println("Slots   : " + d[4].trim());
-                    System.out.println("Status  : " + d[5].trim());
+                    System.out.println("ID        : " + d[0].trim());
+                    System.out.println("Company   : " + d[1].trim());
+                    System.out.println("Title     : " + d[2].trim());
+                    System.out.println("Details   : " + d[3].trim());
+                    System.out.println("Slots     : " + d[4].trim());
+                    System.out.println("Status    : " + d[5].trim());
+                    System.out.println("Req.Skills: " + (d.length >= 7 && !d[6].trim().isEmpty() ? d[6].trim() : "None"));
                     System.out.println("--------------------------------------");
                 }
             }
             br.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // View all student skills
+    public void viewAllStudentSkills() {
+        try {
+            File f = new File("student_skills.txt");
+            if (!f.exists()) { System.out.println("No student skills on record yet."); return; }
+
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            boolean found = false;
+            System.out.println("\n========== ALL STUDENT SKILLS ==========");
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 2 && !d[1].trim().isEmpty()) {
+                    System.out.println("Student : " + d[0].trim());
+                    System.out.println("Skills  : " + d[1].trim());
+                    System.out.println("----------------------------------------");
+                    found = true;
+                } else if (d.length >= 1) {
+                    System.out.println("Student : " + d[0].trim());
+                    System.out.println("Skills  : (none listed)");
+                    System.out.println("----------------------------------------");
+                    found = true;
+                }
+            }
+            br.close();
+            if (!found) System.out.println("No student skills on record yet.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -316,7 +349,7 @@ public class Admin extends User {
                     BufferedWriter bw = new BufferedWriter(new FileWriter(statusFile));
                     for (String l : lines) { bw.write(l); bw.newLine(); }
                     bw.close();
-                    System.out.println("✔ Resume of '" + studentUser + "' deleted successfully.");
+                    System.out.println(" Resume of '" + studentUser + "' deleted successfully.");
                 } catch (Exception e) {
                     System.out.println("Error updating records: " + e.getMessage());
                 }
