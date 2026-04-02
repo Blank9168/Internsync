@@ -6,6 +6,7 @@ public class Internsync {
     private String systemName;
     private String version;
 
+    // Constructor
     public Internsync(String systemName, String version) {
         this.systemName = systemName;
         this.version    = version;
@@ -265,7 +266,9 @@ public class Internsync {
                 if (d[0].trim().equalsIgnoreCase(username)) { br.close(); return true; }
             }
             br.close();
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception e) { 
+            System.out.println("Error checking user existence: " + e.getMessage());
+         }
         return false;
     }
     // Seed a default admin account on first run

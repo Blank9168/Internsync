@@ -7,6 +7,7 @@ public abstract class User {
     protected String role;
     protected String email;
 
+    // Constructor
     public User(int userid, String username, String password, String role, String email) {
         this.userid = userid;
         this.username = username;
@@ -15,6 +16,7 @@ public abstract class User {
         this.email = email;
     }
 
+    // Getters
     public int getUserid()       { return userid; }
     public String getUsername()  { return username; }
     public String getPassword()  { return password; }

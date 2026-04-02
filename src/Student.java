@@ -5,12 +5,14 @@ public class Student extends User {
     private String name;
     private String course;
 
+    // Constructor
     public Student(int id, String username, String password, String email, String name, String course) {
         super(id, username, password, "student", email);
         this.name = name;
         this.course = course;
     }
 
+    // Getters
     public String getName()   { return name; }
     public String getCourse() { return course; }
 
@@ -52,7 +54,9 @@ public class Student extends User {
                 }
             }
             br.close();
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception e) { 
+            System.out.println("Error loading skills: " + e.getMessage());
+         }
         return skills;
     }
 
@@ -95,6 +99,7 @@ public class Student extends User {
         while (managing) {
             List<String> skills = loadMySkills();
             System.out.println("\n========== MY SKILLS ==========");
+            // Display skills with numbering
             if (skills.isEmpty()) {
                 System.out.println("  (No skills added yet)");
             } else {
@@ -108,6 +113,7 @@ public class Student extends User {
             System.out.print("Choice: ");
             String opt = sc.nextLine().trim();
 
+            // Input validation and processing
             if (opt.equals("1")) {
                 System.out.print("Enter skill to add (e.g. Java, Data Analysis, MS Office): ");
                 String newSkill = sc.nextLine().trim();
@@ -124,7 +130,7 @@ public class Student extends User {
                 saveMySkills(skills);
                 System.out.println(" Skill added: " + newSkill);
 
-            } else if (opt.equals("2")) {
+            } else if (opt.equals("2")) { // Remove skill by number
                 if (skills.isEmpty()) { System.out.println("No skills to remove."); continue; }
                 System.out.print("Enter number of skill to remove: ");
                 int idx;
@@ -135,7 +141,7 @@ public class Student extends User {
                 saveMySkills(skills);
                 System.out.println(" Skill removed: " + removed);
 
-            } else if (opt.equals("3")) {
+            } else if (opt.equals("3")) { // Back to main menu
                 managing = false;
             } else {
                 System.out.println("Invalid option.");
@@ -149,6 +155,7 @@ public class Student extends User {
     public List<String[]> browseInternships() {
         List<String[]> list = new ArrayList<>();
         try {
+            // Load all open internships and this student's skills for matching
             File f = new File("internships.txt");
             if (!f.exists()) { System.out.println("No internships posted yet."); return list; }
 
@@ -166,6 +173,7 @@ public class Student extends User {
             }
             br.close();
 
+            // If no open internships, just return empty list
             if (raw.isEmpty()) { System.out.println("No open internships at the moment."); return list; }
 
             // Score each internship by how many required skills the student has
@@ -191,10 +199,12 @@ public class Student extends User {
             scores.sort((a, b) -> b[1] - a[1]);
 
             System.out.println("\n========== AVAILABLE INTERNSHIPS ==========");
+            // Display match badge and matched skills count for each internship
             if (!mySkills.isEmpty())
                 System.out.println("  Your skills: " + String.join(", ", mySkills));
             System.out.println("-------------------------------------------");
 
+            // Display internships with match info
             int count = 1;
             for (int[] entry : scores) {
                 String[] data = raw.get(entry[0]);
@@ -222,6 +232,7 @@ public class Student extends User {
         }
         return list;
     }
+    // ── APPLICATIONS with RESUME GATE ─────────────────────────────
     public void uploadResume(Scanner sc) {
         System.out.println("\n========== UPLOAD RESUME ==========");
         System.out.println("Enter the full path to your PDF file.");
@@ -229,8 +240,10 @@ public class Student extends User {
         System.out.print("File path: ");
         String inputPath = sc.nextLine().trim();
 
+        // Input validation
         if (inputPath.isEmpty()) { System.out.println("No path entered. Cancelled."); return; }
 
+        // Validate file existence and type
         File source = new File(inputPath);
         if (!source.exists()) {
             System.out.println("File not found: " + inputPath);
@@ -245,6 +258,7 @@ public class Student extends User {
         File resumeDir = new File("resumes");
         if (!resumeDir.exists()) resumeDir.mkdir();
 
+        // Destination path: resumes/username.pdf
         File dest = new File("resumes/" + username + ".pdf");
 
         // Copy file bytes
@@ -266,10 +280,12 @@ public class Student extends User {
         String newEntry = username + "|" + dest.getPath() + "|PENDING|--|" + date;
 
         try {
+            // Load existing entries and update or add this student's entry
             File statusFile = new File("resume_status.txt");
             List<String> lines = new ArrayList<>();
             boolean found = false;
 
+            // If file exists, read and update; otherwise, just add new entry
             if (statusFile.exists()) {
                 BufferedReader br = new BufferedReader(new FileReader(statusFile));
                 String line;
@@ -286,6 +302,7 @@ public class Student extends User {
             }
             if (!found) lines.add(newEntry);
 
+            // Write back all entries to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter(statusFile));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -301,9 +318,11 @@ public class Student extends User {
     public void viewResumeStatus() {
         System.out.println("\n========== MY RESUME STATUS ==========");
         try {
+            // Check if resume_status.txt exists and find this student's entry
             File f = new File("resume_status.txt");
             if (!f.exists()) { System.out.println("You have not uploaded a resume yet."); return; }
 
+            // Format: username|filePath|schoolStatus|schoolNote|uploadDate
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
             boolean found = false;
@@ -333,6 +352,7 @@ public class Student extends User {
     // Helper: check if this student's resume is APPROVED
     private String getResumeStatus() {
         try {
+            // Check resume_status.txt for this student's resume status
             File f = new File("resume_status.txt");
             if (!f.exists()) return "NONE";
             BufferedReader br = new BufferedReader(new FileReader(f));
@@ -372,6 +392,7 @@ public class Student extends User {
             return;
         }
 
+        // Browse internships first to get the ID of the one they want to apply for
         List<String[]> internships = browseInternships();
         if (internships.isEmpty()) return;
 
@@ -390,6 +411,7 @@ public class Student extends User {
             return;
         }
 
+        // Get selected internship details
         String[] selected = internships.get(choice - 1);
         String internshipId = selected[0].trim();
         String companyName  = selected[1].trim();
@@ -435,6 +457,7 @@ public class Student extends User {
             File f = new File("applications.txt");
             if (!f.exists()) { System.out.println("You have no applications to withdraw."); return; }
 
+            // Load all PENDING applications of this student
             List<String[]> pending = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
@@ -472,6 +495,7 @@ public class Student extends User {
 
             String targetAppId = pending.get(choice - 1)[0].trim();
 
+            // Remove the selected application from applications.txt by rewriting the file without it
             List<String> lines = new ArrayList<>();
             br = new BufferedReader(new FileReader(f));
             while ((line = br.readLine()) != null) {
@@ -481,6 +505,7 @@ public class Student extends User {
             }
             br.close();
 
+            // Write back the remaining applications to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter(f));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -494,11 +519,13 @@ public class Student extends User {
     // View own applications and their status
     public void viewMyApplications() {
         try {
+            // Check if the applications file exists
             File f = new File("applications.txt");
             if (!f.exists()) {
                 System.out.println("You have no applications yet.");
                 return;
             }
+            // Format: appId|internshipId|studentUsername|studentName|course|company|title|status
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
             boolean found = false;

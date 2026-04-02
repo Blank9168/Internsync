@@ -3,6 +3,7 @@ import java.util.*;
 
 public class Admin extends User {
 
+    // Constructor
     public Admin(int userid, String username, String password, String email) {
         super(userid, username, password, "admin", email);
     }
@@ -28,6 +29,7 @@ public class Admin extends User {
     // View all users
     public void viewUsers() {
         try {
+            // Check if users file exists
             File f = new File("users.txt");
             if (!f.exists()) { System.out.println("No users found."); return; }
 
@@ -72,6 +74,7 @@ public class Admin extends User {
         }
 
         try {
+            // Check if users file exists
             List<String> lines = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader("users.txt"));
             String line;
@@ -89,6 +92,7 @@ public class Admin extends User {
 
             if (!found) { System.out.println("User not found."); return; }
 
+            // Write back the updated users to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -106,6 +110,7 @@ public class Admin extends User {
         if (target.equals("0")) return;
 
         try {
+            // Check if users file exists
             List<String> lines = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader("users.txt"));
             String line;
@@ -119,6 +124,7 @@ public class Admin extends User {
 
             if (!found) { System.out.println("User not found."); return; }
 
+            // Write back the updated users to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -144,6 +150,7 @@ public class Admin extends User {
         if (!newPass.equals(confirm)) { System.out.println("Passwords do not match."); return; }
 
         try {
+            // Check if users file exists
             List<String> lines = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader("users.txt"));
             String line;
@@ -161,6 +168,7 @@ public class Admin extends User {
 
             if (!found) { System.out.println("User not found."); return; }
 
+            // Write back the updated users to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -173,6 +181,7 @@ public class Admin extends User {
     // View all internships
     public void viewAllInternships() {
         try {
+            // Check if internships file exists
             File f = new File("internships.txt");
             if (!f.exists()) { System.out.println("No internships found."); return; }
 
@@ -201,6 +210,7 @@ public class Admin extends User {
     // View all student skills
     public void viewAllStudentSkills() {
         try {
+            // Check if student skills file exists
             File f = new File("student_skills.txt");
             if (!f.exists()) { System.out.println("No student skills on record yet."); return; }
 
@@ -232,6 +242,7 @@ public class Admin extends User {
     // View all applications
     public void viewAllApplications() {
         try {
+            // Check if applications file exists
             File f = new File("applications.txt");
             if (!f.exists()) { System.out.println("No applications found."); return; }
 
@@ -257,11 +268,13 @@ public class Admin extends User {
 
     // Admin: list all resumes, read info, or delete a file
     public void manageResumes(Scanner sc) {
+        // Check if resume status file exists
         File statusFile = new File("resume_status.txt");
         if (!statusFile.exists()) { System.out.println("No resumes uploaded yet."); return; }
 
         List<String[]> resumes = new ArrayList<>();
         try {
+            // Read through resume_status.txt and list all resumes with their status
             BufferedReader br = new BufferedReader(new FileReader(statusFile));
             String line;
             int count = 1;
@@ -287,6 +300,7 @@ public class Admin extends User {
 
         System.out.print("\nEnter number to manage (0 to cancel): ");
         int choice;
+        // Validate that the input is an integer and within the valid range
         try { choice = Integer.parseInt(sc.nextLine().trim()); }
         catch (NumberFormatException e) { System.out.println("Invalid input."); return; }
         if (choice == 0) return;
@@ -337,6 +351,7 @@ public class Admin extends User {
             if (fileDeleted) {
                 // Remove entry from resume_status.txt
                 try {
+                    // Check if resume status file exists
                     List<String> lines = new ArrayList<>();
                     BufferedReader br = new BufferedReader(new FileReader(statusFile));
                     String line;
@@ -346,6 +361,7 @@ public class Admin extends User {
                         lines.add(line);
                     }
                     br.close();
+                    // Write back the updated records to the file
                     BufferedWriter bw = new BufferedWriter(new FileWriter(statusFile));
                     for (String l : lines) { bw.write(l); bw.newLine(); }
                     bw.close();

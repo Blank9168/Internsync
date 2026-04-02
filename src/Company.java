@@ -4,11 +4,13 @@ import java.util.*;
 public class Company extends User {
     private String companyName;
 
+    // Constructor
     public Company(int userid, String username, String password, String email, String companyName) {
         super(userid, username, password, "company", email);
         this.companyName = companyName;
     }
 
+    // Getter for company name
     public String getCompanyName() { return companyName; }
 
     @Override
@@ -45,8 +47,9 @@ public class Company extends User {
         String id = "INT" + System.currentTimeMillis();
 
         try {
+            // Append the new internship to internships.txt
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt", true));
-            // id|company|title|description|slots|status|skills
+            // Format: id|company|title|description|slots|status|skills
             bw.write(id + "|" + companyName + "|" + title + "|" + desc + "|" + slots + "|open|" + skills);
             bw.newLine();
             bw.close();
@@ -59,6 +62,8 @@ public class Company extends User {
     // View all internships posted by this company
     public void viewMyInternships() {
         try {
+
+            // Check if internships file exists
             File f = new File("internships.txt");
             if (!f.exists()) { System.out.println("No internships posted yet."); return; }
 
@@ -88,7 +93,8 @@ public class Company extends User {
 
     // Helper: load skills for a given student username from student_skills.txt
     private String loadStudentSkills(String studentUser) {
-        try {
+        try { 
+            // Check if the skills file exists
             File f = new File("student_skills.txt");
             if (!f.exists()) return "(no skills listed)";
             BufferedReader br = new BufferedReader(new FileReader(f));
@@ -109,6 +115,7 @@ public class Company extends User {
     public List<String[]> viewApplicants() {
         List<String[]> applicants = new ArrayList<>();
         try {
+            // Check if applications file exists
             File f = new File("applications.txt");
             if (!f.exists()) { System.out.println("No applications yet."); return applicants; }
 
@@ -144,6 +151,7 @@ public class Company extends User {
         // First show this company's internships to pick one
         List<String[]> myInternships = new ArrayList<>();
         try {
+            // Check if internships file exists
             File f = new File("internships.txt");
             if (!f.exists()) { System.out.println("No internships posted."); return; }
             BufferedReader br = new BufferedReader(new FileReader(f));
@@ -171,6 +179,7 @@ public class Company extends User {
         if (pick == 0) return;
         if (pick < 1 || pick > myInternships.size()) { System.out.println("Invalid selection."); return; }
 
+        // Extract required skills for the chosen internship
         String[] chosen = myInternships.get(pick - 1);
         String internshipId = chosen[0].trim();
         String internshipTitle = chosen[2].trim();
@@ -193,6 +202,7 @@ public class Company extends User {
             List<String[]> matched   = new ArrayList<>();
             List<String[]> unmatched = new ArrayList<>();
 
+            // Read through applications and categorize them based on skill match
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
             while ((line = br.readLine()) != null) {
@@ -229,6 +239,7 @@ public class Company extends User {
                 return;
             }
 
+            // Sort matched applicants by match count descending
             int count = 1;
             if (!matched.isEmpty()) {
                 System.out.println("--- SKILL MATCHES (sorted by match count) ---");
@@ -275,6 +286,7 @@ public class Company extends User {
         if (choice == 0) return;
         if (choice < 1 || choice > applicants.size()) { System.out.println("Invalid selection."); return; }
 
+        // applicants list already filtered to this company by viewApplicants()
         String[] selected = applicants.get(choice - 1);
         String appId = selected[0].trim();
 
@@ -288,6 +300,7 @@ public class Company extends User {
 
         // Rewrite applications.txt with updated status
         try {
+            // Check if the applications file exists
             List<String> lines = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader("applications.txt"));
             String line;
@@ -301,6 +314,7 @@ public class Company extends User {
             }
             br.close();
 
+            // Write back the updated applications to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter("applications.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -353,6 +367,7 @@ public class Company extends User {
                 default: System.out.println("Cancelled."); return;
             }
 
+            // For skills, allow comma-separated input. For others, just a single value.
             System.out.print("New value" + (field == 6 ? " (comma-separated skills)" : "") + ": ");
             String newValue = sc.nextLine().trim().replace("|", "");
             if (field != 6 && newValue.isEmpty()) { System.out.println("Value cannot be empty."); return; }
@@ -374,6 +389,7 @@ public class Company extends User {
             }
             br.close();
 
+            // Write back the updated internships to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -391,6 +407,13 @@ public class Company extends User {
         if (id.equals("0")) return;
 
         try {
+            // Check if the internships file exists
+            File internshipsFile = new File("internships.txt");
+            if (!internshipsFile.exists()) {
+                System.out.println("No internships found.");
+                return;
+            }
+            // Read through internships and update the status of the selected one to "closed"
             List<String> lines = new ArrayList<>();
             BufferedReader br = new BufferedReader(new FileReader("internships.txt"));
             String line;
@@ -408,6 +431,7 @@ public class Company extends User {
 
             if (!found) { System.out.println("Internship not found or not yours."); return; }
 
+            // Write back the updated internships to the file
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
@@ -424,6 +448,7 @@ public class Company extends User {
 
         System.out.print("\nEnter applicant number to view resume (0 to cancel): ");
         int choice;
+        // Validate that the input is an integer and within the valid range
         try { choice = Integer.parseInt(sc.nextLine().trim()); }
         catch (NumberFormatException e) { System.out.println("Invalid input."); return; }
         if (choice == 0) return;
@@ -442,6 +467,7 @@ public class Company extends User {
         }
 
         try {
+            // Check if the resume status file exists
             File statusFile = new File("resume_status.txt");
             if (!statusFile.exists()) { System.out.println("No resumes have been uploaded yet."); return; }
 

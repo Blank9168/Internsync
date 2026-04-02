@@ -5,12 +5,14 @@ public class School extends User {
     private String schoolName;
     private String address;
 
+    // Constructor
     public School(int userid, String username, String password, String email, String schoolName, String address) {
         super(userid, username, password, "school", email);
         this.schoolName = schoolName;
         this.address    = address;
     }
 
+    // Getters
     public String getSchoolName() { return schoolName; }
     public String getAddress()    { return address; }
 
