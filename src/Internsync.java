@@ -106,7 +106,7 @@ public class Internsync {
             bw.write(username + "," + password + "," + role + "," + email + extraFields);
             bw.newLine();
             bw.close();
-            System.out.println("\n✔ Registered successfully! You can now login.");
+            System.out.println("\n Registered successfully! You can now login.");
         } catch (Exception e) {
             System.out.println("Error saving user: " + e.getMessage());
         }
@@ -169,7 +169,7 @@ public class Internsync {
                 return;
             }
 
-            System.out.println("\n✔ Login successful!");
+            System.out.println("\n Login successful!");
             runUserSession(currentUser, sc);
 
         } catch (Exception e) {
@@ -196,8 +196,9 @@ public class Internsync {
                     case "4": s.withdrawApplication(sc);  break;
                     case "5": s.uploadResume(sc);         break;
                     case "6": s.viewResumeStatus();       break;
-                    case "7": s.changePassword(sc);       break;
-                    case "8": loggedIn = false; System.out.println("Logged out."); break;
+                    case "7": s.manageSkills(sc);         break;
+                    case "8": s.changePassword(sc);       break;
+                    case "9": loggedIn = false; System.out.println("Logged out."); break;
                     default:  System.out.println("Invalid option.");
                 }
 
