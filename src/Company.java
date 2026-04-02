@@ -22,8 +22,9 @@ public class Company extends User {
         System.out.println("4. Accept / Reject Applicant");
         System.out.println("5. Close an Internship");
         System.out.println("6. Edit an Internship");
-        System.out.println("7. Change Password");
-        System.out.println("8. Logout");
+        System.out.println("7. View Applicant Resume");
+        System.out.println("8. Change Password");
+        System.out.println("9. Logout");
         System.out.print("Choice: ");
     }
 
@@ -44,7 +45,7 @@ public class Company extends User {
             bw.write(id + "|" + companyName + "|" + title + "|" + desc + "|" + slots + "|open");
             bw.newLine();
             bw.close();
-            System.out.println("\n Internship posted successfully! (ID: " + id + ")");
+            System.out.println("\n✔ Internship posted successfully! (ID: " + id + ")");
         } catch (Exception e) {
             System.out.println("Error posting internship: " + e.getMessage());
         }
@@ -156,7 +157,7 @@ public class Company extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
 
-            System.out.println("\n Application " + appId + " has been " + newStatus + ".");
+            System.out.println("\n✔ Application " + appId + " has been " + newStatus + ".");
         } catch (Exception e) {
             System.out.println("Error updating application: " + e.getMessage());
         }
@@ -222,7 +223,7 @@ public class Company extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println(" Internship updated successfully.");
+            System.out.println("✔ Internship updated successfully.");
         } catch (Exception e) {
             System.out.println("Error editing internship: " + e.getMessage());
         }
@@ -256,9 +257,68 @@ public class Company extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("internships.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println(" Internship closed.");
+            System.out.println("✔ Internship closed.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // View resume of a specific applicant — only students who applied to THIS company
+    public void viewApplicantResume(Scanner sc) {
+        List<String[]> applicants = viewApplicants();
+        if (applicants.isEmpty()) return;
+
+        System.out.print("\nEnter applicant number to view resume (0 to cancel): ");
+        int choice;
+        try { choice = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("Invalid input."); return; }
+        if (choice == 0) return;
+        if (choice < 1 || choice > applicants.size()) { System.out.println("Invalid selection."); return; }
+
+        // applicants list already filtered to this company by viewApplicants()
+        // d[2] = studentUsername, d[5] = company
+        String studentUser    = applicants.get(choice - 1)[2].trim();
+        String studentName    = applicants.get(choice - 1)[3].trim();
+        String appliedCompany = applicants.get(choice - 1)[5].trim();
+
+        // Safety: double-check the applicant belongs to this company
+        if (!appliedCompany.equalsIgnoreCase(companyName)) {
+            System.out.println("Access denied. This applicant did not apply to your company.");
+            return;
+        }
+
+        try {
+            File statusFile = new File("resume_status.txt");
+            if (!statusFile.exists()) { System.out.println("No resumes have been uploaded yet."); return; }
+
+            BufferedReader br = new BufferedReader(new FileReader(statusFile));
+            String line;
+            boolean found = false;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                // username|filePath|schoolStatus|schoolNote|uploadDate
+                if (d.length >= 5 && d[0].trim().equals(studentUser)) {
+                    System.out.println("\n--- RESUME: " + studentName + " (" + studentUser + ") ---");
+                    System.out.println("File           : " + d[1].trim());
+                    System.out.println("Uploaded       : " + d[4].trim());
+                    System.out.println("School approval: " + d[2].trim());
+                    System.out.println("School note    : " + d[3].trim());
+                    File pdf = new File(d[1].trim());
+                    if (pdf.exists()) {
+                        System.out.println("File Size      : " + pdf.length() + " bytes (" + (pdf.length() / 1024) + " KB)");
+                        System.out.println("Full Path      : " + pdf.getAbsolutePath());
+                        System.out.println("(Open the path above in a PDF viewer to read the full resume.)");
+                    } else {
+                        System.out.println("File not found on disk.");
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            br.close();
+            if (!found) System.out.println(studentName + " has not uploaded a resume yet.");
+        } catch (Exception e) {
+            System.out.println("Error reading resume: " + e.getMessage());
         }
     }
 }
