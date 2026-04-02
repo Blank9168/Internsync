@@ -4,7 +4,7 @@ public class MainClass {
         Admin admin = new Admin(1, "admin", "admin123", "admin@internsync.com");
 
         // Initialize the system
-        Internsync system = new Internsync("InternSync", "v3.0");
+        Internsync system = new Internsync("InternSync", "v1.0");
         system.startSystem();
     }
 }
