@@ -25,12 +25,203 @@ public class Student extends User {
         System.out.println("4. Withdraw an Application");
         System.out.println("5. Upload / Re-upload Resume (PDF)");
         System.out.println("6. View My Resume Status");
-        System.out.println("7. Change Password");
-        System.out.println("8. Logout");
+        System.out.println("7. Manage My Skills");
+        System.out.println("8. Change Password");
+        System.out.println("9. Logout");
         System.out.print("Choice: ");
     }
 
-    // Upload or re-upload a PDF resume
+    // ── SKILL HELPERS ────────────────────────────────────────────
+
+    // Load this student's skills from student_skills.txt
+    private List<String> loadMySkills() {
+        List<String> skills = new ArrayList<>();
+        try {
+            File f = new File("student_skills.txt");
+            if (!f.exists()) return skills;
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d.length >= 2 && d[0].trim().equalsIgnoreCase(username)) {
+                    for (String s : d[1].split(",")) {
+                        String sk = s.trim();
+                        if (!sk.isEmpty()) skills.add(sk);
+                    }
+                    break;
+                }
+            }
+            br.close();
+        } catch (Exception e) { /* ignore */ }
+        return skills;
+    }
+
+    // Save skills list back to student_skills.txt
+    private void saveMySkills(List<String> skills) {
+        try {
+            File f = new File("student_skills.txt");
+            List<String> lines = new ArrayList<>();
+            boolean found = false;
+            if (f.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(f));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] d = line.split("\\|");
+                    if (d[0].trim().equalsIgnoreCase(username)) {
+                        found = true;
+                        if (!skills.isEmpty())
+                            lines.add(username + "|" + String.join(",", skills));
+                        // if empty, just skip — removes entry
+                    } else {
+                        lines.add(line);
+                    }
+                }
+                br.close();
+            }
+            if (!found && !skills.isEmpty())
+                lines.add(username + "|" + String.join(",", skills));
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.close();
+        } catch (Exception e) {
+            System.out.println("Error saving skills: " + e.getMessage());
+        }
+    }
+
+    // Manage skills: view, add, remove
+    public void manageSkills(Scanner sc) {
+        boolean managing = true;
+        while (managing) {
+            List<String> skills = loadMySkills();
+            System.out.println("\n========== MY SKILLS ==========");
+            if (skills.isEmpty()) {
+                System.out.println("  (No skills added yet)");
+            } else {
+                for (int i = 0; i < skills.size(); i++)
+                    System.out.println("  [" + (i + 1) + "] " + skills.get(i));
+            }
+            System.out.println("--------------------------------");
+            System.out.println("1. Add a skill");
+            System.out.println("2. Remove a skill");
+            System.out.println("3. Back");
+            System.out.print("Choice: ");
+            String opt = sc.nextLine().trim();
+
+            if (opt.equals("1")) {
+                System.out.print("Enter skill to add (e.g. Java, Data Analysis, MS Office): ");
+                String newSkill = sc.nextLine().trim();
+                if (newSkill.isEmpty()) { System.out.println("Skill cannot be empty."); continue; }
+                // Prevent comma-injection
+                newSkill = newSkill.replace(",", "").replace("|", "").trim();
+                // Check duplicate (case-insensitive)
+                boolean exists = false;
+                for (String s : skills) {
+                    if (s.equalsIgnoreCase(newSkill)) { exists = true; break; }
+                }
+                if (exists) { System.out.println("You already have that skill listed."); continue; }
+                skills.add(newSkill);
+                saveMySkills(skills);
+                System.out.println(" Skill added: " + newSkill);
+
+            } else if (opt.equals("2")) {
+                if (skills.isEmpty()) { System.out.println("No skills to remove."); continue; }
+                System.out.print("Enter number of skill to remove: ");
+                int idx;
+                try { idx = Integer.parseInt(sc.nextLine().trim()); }
+                catch (NumberFormatException e) { System.out.println("Invalid input."); continue; }
+                if (idx < 1 || idx > skills.size()) { System.out.println("Invalid selection."); continue; }
+                String removed = skills.remove(idx - 1);
+                saveMySkills(skills);
+                System.out.println(" Skill removed: " + removed);
+
+            } else if (opt.equals("3")) {
+                managing = false;
+            } else {
+                System.out.println("Invalid option.");
+            }
+        }
+    }
+
+    // ── BROWSE with skill-match scoring ──────────────────────────
+
+    // Browse internships — matched ones float to top with a match badge
+    public List<String[]> browseInternships() {
+        List<String[]> list = new ArrayList<>();
+        try {
+            File f = new File("internships.txt");
+            if (!f.exists()) { System.out.println("No internships posted yet."); return list; }
+
+            List<String> mySkills = loadMySkills();
+
+            // Load all open internships
+            List<String[]> raw = new ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split("\\|");
+                // id|company|title|desc|slots|status[|skills]
+                if (data.length >= 6 && data[5].trim().equalsIgnoreCase("open"))
+                    raw.add(data);
+            }
+            br.close();
+
+            if (raw.isEmpty()) { System.out.println("No open internships at the moment."); return list; }
+
+            // Score each internship by how many required skills the student has
+            List<int[]> scores = new ArrayList<>(); // index → matched count
+            for (int i = 0; i < raw.size(); i++) {
+                String[] data = raw.get(i);
+                int matched = 0;
+                if (data.length >= 7 && !data[6].trim().isEmpty() && !mySkills.isEmpty()) {
+                    for (String req : data[6].split(",")) {
+                        String r = req.trim().toLowerCase();
+                        for (String mine : mySkills) {
+                            if (mine.toLowerCase().contains(r) || r.contains(mine.toLowerCase())) {
+                                matched++;
+                                break;
+                            }
+                        }
+                    }
+                }
+                scores.add(new int[]{i, matched});
+            }
+
+            // Sort: higher match count first, then original order
+            scores.sort((a, b) -> b[1] - a[1]);
+
+            System.out.println("\n========== AVAILABLE INTERNSHIPS ==========");
+            if (!mySkills.isEmpty())
+                System.out.println("  Your skills: " + String.join(", ", mySkills));
+            System.out.println("-------------------------------------------");
+
+            int count = 1;
+            for (int[] entry : scores) {
+                String[] data = raw.get(entry[0]);
+                int matchCount = entry[1];
+                String reqSkills = (data.length >= 7 && !data[6].trim().isEmpty()) ? data[6].trim() : "None specified";
+
+                // Match badge
+                if (!mySkills.isEmpty() && matchCount > 0) {
+                    int total = (data.length >= 7) ? data[6].split(",").length : 0;
+                    System.out.println("[" + count + "] *** MATCH: " + matchCount + "/" + total + " skills matched ***");
+                } else {
+                    System.out.println("[" + count + "]");
+                }
+                System.out.println("    Company  : " + data[1].trim());
+                System.out.println("    Title    : " + data[2].trim());
+                System.out.println("    Details  : " + data[3].trim());
+                System.out.println("    Slots    : " + data[4].trim());
+                System.out.println("    Req.Skills: " + reqSkills);
+                System.out.println("-------------------------------------------");
+                list.add(data);
+                count++;
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading internships: " + e.getMessage());
+        }
+        return list;
+    }
     public void uploadResume(Scanner sc) {
         System.out.println("\n========== UPLOAD RESUME ==========");
         System.out.println("Enter the full path to your PDF file.");
@@ -99,7 +290,7 @@ public class Student extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
 
-            System.out.println("✔ Resume uploaded successfully to: " + dest.getPath());
+            System.out.println(" Resume uploaded successfully to: " + dest.getPath());
             System.out.println("  Status reset to PENDING for school review.");
         } catch (Exception e) {
             System.out.println("Error updating resume status: " + e.getMessage());
@@ -137,40 +328,7 @@ public class Student extends User {
         }
     }
 
-    // Browse all internships from internships.txt
-    public List<String[]> browseInternships() {
-        List<String[]> list = new ArrayList<>();
-        try {
-            File f = new File("internships.txt");
-            if (!f.exists()) {
-                System.out.println("No internships posted yet.");
-                return list;
-            }
-            BufferedReader br = new BufferedReader(new FileReader(f));
-            String line;
-            int count = 1;
-            System.out.println("\n========== AVAILABLE INTERNSHIPS ==========");
-            while ((line = br.readLine()) != null) {
-                // Format: id,company,title,description,slots,status
-                String[] data = line.split("\\|");
-                if (data.length >= 4 && data[4].trim().equalsIgnoreCase("open")) {
-                    System.out.println("[" + count + "] Company : " + data[1].trim());
-                    System.out.println("    Title   : " + data[2].trim());
-                    System.out.println("    Details : " + data[3].trim());
-                    System.out.println("    Slots   : " + data[4].trim());
-                    System.out.println("    Status  : " + data[5].trim());
-                    System.out.println("-------------------------------------------");
-                    list.add(data);
-                    count++;
-                }
-            }
-            br.close();
-            if (list.isEmpty()) System.out.println("No open internships at the moment.");
-        } catch (Exception e) {
-            System.out.println("Error reading internships: " + e.getMessage());
-        }
-        return list;
-    }
+    // ── RESUME GATE ──────────────────────────────────────────────
 
     // Helper: check if this student's resume is APPROVED
     private String getResumeStatus() {
@@ -196,19 +354,19 @@ public class Student extends User {
         // Resume gate: must be APPROVED before applying
         String resumeStatus = getResumeStatus();
         if (resumeStatus.equals("NONE")) {
-            System.out.println("\n✘ You cannot apply yet.");
+            System.out.println("\n You cannot apply yet.");
             System.out.println("  You have not uploaded a resume.");
             System.out.println("  Please upload your PDF resume first (option 5).");
             return;
         }
         if (resumeStatus.equals("PENDING")) {
-            System.out.println("\n✘ You cannot apply yet.");
+            System.out.println("\n You cannot apply yet.");
             System.out.println("  Your resume is still awaiting school approval.");
             System.out.println("  Please wait for the school to review your resume.");
             return;
         }
         if (resumeStatus.equals("REJECTED")) {
-            System.out.println("\n✘ You cannot apply yet.");
+            System.out.println("\n You cannot apply yet.");
             System.out.println("  Your resume was REJECTED by the school.");
             System.out.println("  Please re-upload a revised resume (option 5) and wait for re-approval.");
             return;
@@ -327,7 +485,7 @@ public class Student extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
 
-            System.out.println("✔ Application withdrawn successfully.");
+            System.out.println(" Application withdrawn successfully.");
         } catch (Exception e) {
             System.out.println("Error withdrawing application: " + e.getMessage());
         }
