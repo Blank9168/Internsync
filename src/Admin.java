@@ -18,8 +18,9 @@ public class Admin extends User {
         System.out.println("4. View All Internships");
         System.out.println("5. View All Applications");
         System.out.println("6. Reset User Password");
-        System.out.println("7. Change My Password");
-        System.out.println("8. Logout");
+        System.out.println("7. Manage Student Resumes");
+        System.out.println("8. Change My Password");
+        System.out.println("9. Logout");
         System.out.print("Choice: ");
     }
 
@@ -90,7 +91,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println(" Role updated to '" + newRole + "' for user: " + targetUsername);
+            System.out.println("✔ Role updated to '" + newRole + "' for user: " + targetUsername);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -120,7 +121,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println(" User '" + target + "' deleted.");
+            System.out.println("✔ User '" + target + "' deleted.");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -162,7 +163,7 @@ public class Admin extends User {
             BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
-            System.out.println(" Password reset successfully for user: " + target);
+            System.out.println("✔ Password reset successfully for user: " + target);
         } catch (Exception e) {
             System.out.println("Error resetting password: " + e.getMessage());
         }
@@ -218,6 +219,112 @@ public class Admin extends User {
             br.close();
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Admin: list all resumes, read info, or delete a file
+    public void manageResumes(Scanner sc) {
+        File statusFile = new File("resume_status.txt");
+        if (!statusFile.exists()) { System.out.println("No resumes uploaded yet."); return; }
+
+        List<String[]> resumes = new ArrayList<>();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(statusFile));
+            String line;
+            int count = 1;
+            System.out.println("\n========== ALL STUDENT RESUMES ==========");
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                // username|filePath|schoolStatus|schoolNote|uploadDate
+                if (d.length >= 5) {
+                    System.out.println("[" + count + "] Student  : " + d[0].trim());
+                    System.out.println("    File     : " + d[1].trim());
+                    System.out.println("    Uploaded : " + d[4].trim());
+                    System.out.println("    Status   : " + d[2].trim());
+                    System.out.println("    Note     : " + d[3].trim());
+                    System.out.println("-----------------------------------------");
+                    resumes.add(d);
+                    count++;
+                }
+            }
+            br.close();
+        } catch (Exception e) { System.out.println("Error reading resumes: " + e.getMessage()); return; }
+
+        if (resumes.isEmpty()) { System.out.println("No resumes found."); return; }
+
+        System.out.print("\nEnter number to manage (0 to cancel): ");
+        int choice;
+        try { choice = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("Invalid input."); return; }
+        if (choice == 0) return;
+        if (choice < 1 || choice > resumes.size()) { System.out.println("Invalid selection."); return; }
+
+        String[] sel       = resumes.get(choice - 1);
+        String studentUser = sel[0].trim();
+        String filePath    = sel[1].trim();
+        File pdf           = new File(filePath);
+
+        System.out.println("\nAction:");
+        System.out.println("1. Read (view file info)");
+        System.out.println("2. Delete resume file");
+        System.out.println("0. Cancel");
+        System.out.print("Choice: ");
+        String action = sc.nextLine().trim();
+
+        if (action.equals("0")) return;
+
+        if (action.equals("1")) {
+            System.out.println("\n--- RESUME: " + studentUser + " ---");
+            System.out.println("File     : " + pdf.getName());
+            System.out.println("Status   : " + sel[2].trim());
+            System.out.println("Note     : " + sel[3].trim());
+            System.out.println("Uploaded : " + sel[4].trim());
+            if (pdf.exists()) {
+                System.out.println("Size     : " + pdf.length() + " bytes (" + (pdf.length() / 1024) + " KB)");
+                System.out.println("Path     : " + pdf.getAbsolutePath());
+                System.out.println("(Open the path above in a PDF viewer to read the full resume.)");
+            } else {
+                System.out.println("File not found on disk.");
+            }
+
+        } else if (action.equals("2")) {
+            System.out.print("Confirm delete resume of '" + studentUser + "'? (yes/no): ");
+            String confirm = sc.nextLine().trim();
+            if (!confirm.equalsIgnoreCase("yes")) { System.out.println("Cancelled."); return; }
+
+            // Delete the physical PDF file
+            boolean fileDeleted = false;
+            if (pdf.exists()) {
+                fileDeleted = pdf.delete();
+            } else {
+                System.out.println("Note: File not found on disk, removing record only.");
+                fileDeleted = true;
+            }
+
+            if (fileDeleted) {
+                // Remove entry from resume_status.txt
+                try {
+                    List<String> lines = new ArrayList<>();
+                    BufferedReader br = new BufferedReader(new FileReader(statusFile));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] d = line.split("\\|");
+                        if (d[0].trim().equals(studentUser)) continue; // skip — delete
+                        lines.add(line);
+                    }
+                    br.close();
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(statusFile));
+                    for (String l : lines) { bw.write(l); bw.newLine(); }
+                    bw.close();
+                    System.out.println("✔ Resume of '" + studentUser + "' deleted successfully.");
+                } catch (Exception e) {
+                    System.out.println("Error updating records: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Failed to delete file. Check file permissions.");
+            }
+        } else {
+            System.out.println("Invalid action.");
         }
     }
 }
