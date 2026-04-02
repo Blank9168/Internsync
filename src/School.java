@@ -24,8 +24,9 @@ public class School extends User {
         System.out.println("3. View Accepted Students");
         System.out.println("4. Endorse a Student");
         System.out.println("5. View Endorsements");
-        System.out.println("6. Change Password");
-        System.out.println("7. Logout");
+        System.out.println("6. Review Student Resumes");
+        System.out.println("7. Change Password");
+        System.out.println("8. Logout");
         System.out.print("Choice: ");
     }
 
@@ -171,6 +172,97 @@ public class School extends User {
             System.out.println("✔ Endorsement recorded for " + studentName + " on " + date + ".");
         } catch (Exception e) {
             System.out.println("Error saving endorsement: " + e.getMessage());
+        }
+    }
+
+    // List all uploaded resumes and approve/reject one
+    public void reviewResumes(Scanner sc) {
+        File statusFile = new File("resume_status.txt");
+        if (!statusFile.exists()) { System.out.println("No resumes uploaded yet."); return; }
+
+        List<String[]> resumes = new ArrayList<>();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(statusFile));
+            String line;
+            int count = 1;
+            System.out.println("\n========== STUDENT RESUMES ==========");
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                // username|filePath|schoolStatus|schoolNote|uploadDate
+                if (d.length >= 5) {
+                    System.out.println("[" + count + "] Student  : " + d[0].trim());
+                    System.out.println("    File     : " + d[1].trim());
+                    System.out.println("    Uploaded : " + d[4].trim());
+                    System.out.println("    Status   : " + d[2].trim());
+                    System.out.println("    Note     : " + d[3].trim());
+                    System.out.println("-------------------------------------");
+                    resumes.add(d);
+                    count++;
+                }
+            }
+            br.close();
+        } catch (Exception e) { System.out.println("Error reading resumes: " + e.getMessage()); return; }
+
+        if (resumes.isEmpty()) { System.out.println("No resumes found."); return; }
+
+        System.out.print("\nEnter number to read/review (0 to cancel): ");
+        int choice;
+        try { choice = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("Invalid input."); return; }
+        if (choice == 0) return;
+        if (choice < 1 || choice > resumes.size()) { System.out.println("Invalid selection."); return; }
+
+        String[] sel = resumes.get(choice - 1);
+        String studentUser = sel[0].trim();
+        String filePath    = sel[1].trim();
+
+        // Read PDF as text (text-based PDFs) or show file info
+        System.out.println("\n--- RESUME FILE INFO ---");
+        File pdf = new File(filePath);
+        if (!pdf.exists()) {
+            System.out.println("File not found on disk: " + filePath);
+        } else {
+            System.out.println("File Name : " + pdf.getName());
+            System.out.println("File Size : " + pdf.length() + " bytes (" + (pdf.length() / 1024) + " KB)");
+            System.out.println("Full Path : " + pdf.getAbsolutePath());
+            System.out.println("(Open the file path above in a PDF viewer to read the full resume.)");
+        }
+
+        System.out.println("\nAction:");
+        System.out.println("1. APPROVE");
+        System.out.println("2. REJECT");
+        System.out.println("0. Cancel");
+        System.out.print("Choice: ");
+        String action = sc.nextLine().trim();
+        if (action.equals("0")) return;
+        if (!action.equals("1") && !action.equals("2")) { System.out.println("Invalid action."); return; }
+
+        String newStatus = action.equals("1") ? "APPROVED" : "REJECTED";
+        System.out.print("Leave a note for the student: ");
+        String note = sc.nextLine().trim();
+        if (note.isEmpty()) note = "--";
+
+        // Rewrite resume_status.txt with updated status
+        try {
+            List<String> lines = new ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader(statusFile));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] d = line.split("\\|");
+                if (d[0].trim().equals(studentUser)) {
+                    d[2] = newStatus;
+                    d[3] = note;
+                    line  = String.join("|", d);
+                }
+                lines.add(line);
+            }
+            br.close();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(statusFile));
+            for (String l : lines) { bw.write(l); bw.newLine(); }
+            bw.close();
+            System.out.println("✔ Resume of '" + studentUser + "' has been " + newStatus + ".");
+        } catch (Exception e) {
+            System.out.println("Error updating resume status: " + e.getMessage());
         }
     }
 
