@@ -12,9 +12,27 @@ public class Company extends User {
 
     // Getter for company name
     public String getCompanyName() { return companyName; }
+    
+    // Setter
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
+
+    @Override
+    public String getDisplayName() {
+        return companyName + " (Company)";
+    }
+    
+    @Override
+    public void viewPersonalInfo() {
+        System.out.println("\n=== COMPANY PROFILE ===");
+        System.out.println("Username    : " + username);
+        System.out.println("Company Name: " + companyName);
+        System.out.println("Email       : " + email);
+        System.out.println("Role        : " + role);
+    }
 
     @Override
     public void displayMenu() {
+        logAction("viewing menu");
         System.out.println("\n=============================");
         System.out.println("  Company: " + companyName);
         System.out.println("=============================");
@@ -54,6 +72,7 @@ public class Company extends User {
             bw.newLine();
             bw.close();
             System.out.println("\n Internship posted successfully! (ID: " + id + ")");
+            logAction("posted internship: " + title);
         } catch (Exception e) {
             System.out.println("Error posting internship: " + e.getMessage());
         }
@@ -112,7 +131,8 @@ public class Company extends User {
     }
 
     // View all applicants for this company's internships — shows skills inline
-    public List<String[]> viewApplicants() {
+    @Override
+    public List<String[]> viewApplications() {
         List<String[]> applicants = new ArrayList<>();
         try {
             // Check if applications file exists
@@ -140,6 +160,7 @@ public class Company extends User {
             }
             br.close();
             if (applicants.isEmpty()) System.out.println("No applicants for your internships.");
+            logAction("viewed applicants");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -265,6 +286,7 @@ public class Company extends User {
                     count++;
                 }
             }
+            logAction("filtered applicants by skills");
 
         } catch (Exception e) {
             System.out.println("Error filtering applicants: " + e.getMessage());
@@ -273,7 +295,7 @@ public class Company extends User {
 
     // Accept or reject an applicant
     public void updateApplicationStatus(Scanner sc) {
-        List<String[]> applicants = viewApplicants();
+        List<String[]> applicants = viewApplications();
         if (applicants.isEmpty()) return;
 
         System.out.print("\nEnter applicant number to update (0 to cancel): ");
@@ -286,7 +308,7 @@ public class Company extends User {
         if (choice == 0) return;
         if (choice < 1 || choice > applicants.size()) { System.out.println("Invalid selection."); return; }
 
-        // applicants list already filtered to this company by viewApplicants()
+        // applicants list already filtered to this company by viewApplications()
         String[] selected = applicants.get(choice - 1);
         String appId = selected[0].trim();
 
@@ -320,6 +342,7 @@ public class Company extends User {
             bw.close();
 
             System.out.println("\n Application " + appId + " has been " + newStatus + ".");
+            logAction("updated application " + appId + " to " + newStatus);
         } catch (Exception e) {
             System.out.println("Error updating application: " + e.getMessage());
         }
@@ -394,6 +417,7 @@ public class Company extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
             System.out.println(" Internship updated successfully.");
+            logAction("edited internship: " + id);
         } catch (Exception e) {
             System.out.println("Error editing internship: " + e.getMessage());
         }
@@ -436,6 +460,7 @@ public class Company extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
             System.out.println(" Internship closed.");
+            logAction("closed internship: " + id);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -443,7 +468,7 @@ public class Company extends User {
 
     // View resume of a specific applicant — only students who applied to THIS company
     public void viewApplicantResume(Scanner sc) {
-        List<String[]> applicants = viewApplicants();
+        List<String[]> applicants = viewApplications();
         if (applicants.isEmpty()) return;
 
         System.out.print("\nEnter applicant number to view resume (0 to cancel): ");
@@ -454,7 +479,7 @@ public class Company extends User {
         if (choice == 0) return;
         if (choice < 1 || choice > applicants.size()) { System.out.println("Invalid selection."); return; }
 
-        // applicants list already filtered to this company by viewApplicants()
+        // applicants list already filtered to this company by viewApplications()
         // d[2] = studentUsername, d[5] = company
         String studentUser    = applicants.get(choice - 1)[2].trim();
         String studentName    = applicants.get(choice - 1)[3].trim();
@@ -497,8 +522,14 @@ public class Company extends User {
             }
             br.close();
             if (!found) System.out.println(studentName + " has not uploaded a resume yet.");
+            logAction("viewed resume for " + studentUser);
         } catch (Exception e) {
             System.out.println("Error reading resume: " + e.getMessage());
         }
+    }
+    
+    @Override
+    public void browseInternships() {
+        viewMyInternships();
     }
 }

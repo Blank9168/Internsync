@@ -16,6 +16,9 @@ public class Internsync {
     //  SYSTEM ENTRY POINT
     // ─────────────────────────────────────────
     public void startSystem() {
+        // Show system info from the interface
+        InternshipActions.showSystemInfo();
+        
         seedDefaultAdmin();
         Scanner sc = new Scanner(System.in);
         boolean running = true;
@@ -183,6 +186,9 @@ public class Internsync {
     // ─────────────────────────────────────────
     private void runUserSession(User currentUser, Scanner sc) {
         boolean loggedIn = true;
+        
+        // Polymorphism in action - each user type has different behavior
+        System.out.println("\nWelcome " + currentUser.getDisplayName() + "!");
 
         while (loggedIn) {
             currentUser.displayMenu();
@@ -193,7 +199,7 @@ public class Internsync {
                 switch (option) {
                     case "1": s.browseInternships();      break;
                     case "2": s.applyInternship(sc);      break;
-                    case "3": s.viewMyApplications();     break;
+                    case "3": s.viewApplications();       break;
                     case "4": s.withdrawApplication(sc);  break;
                     case "5": s.uploadResume(sc);         break;
                     case "6": s.viewResumeStatus();       break;
@@ -208,7 +214,7 @@ public class Internsync {
                 switch (option) {
                     case "1":  c.postInternship(sc);            break;
                     case "2":  c.viewMyInternships();           break;
-                    case "3":  c.viewApplicants();              break;
+                    case "3":  c.viewApplications();            break;
                     case "4":  c.updateApplicationStatus(sc);   break;
                     case "5":  c.closeInternship(sc);           break;
                     case "6":  c.editInternship(sc);            break;
@@ -226,7 +232,7 @@ public class Internsync {
                     case "2":  a.changeUserRole(sc);         break;
                     case "3":  a.deleteUser(sc);             break;
                     case "4":  a.viewAllInternships();       break;
-                    case "5":  a.viewAllApplications();      break;
+                    case "5":  a.viewApplications();         break;
                     case "6":  a.resetUserPassword(sc);      break;
                     case "7":  a.manageResumes(sc);          break;
                     case "8":  a.viewAllStudentSkills();     break;
@@ -271,6 +277,7 @@ public class Internsync {
          }
         return false;
     }
+    
     // Seed a default admin account on first run
     private void seedDefaultAdmin() {
         if (!userExists("admin")) {

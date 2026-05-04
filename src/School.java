@@ -47,7 +47,9 @@ public class School extends User {
                 }
             }
             br.close();
-        } catch (Exception e) { /* ignore */ }
+        } catch (Exception e) { 
+            System.out.println("Error loading skills for " + studentUser + ": " + e.getMessage());
+         }
         return "(none)";
     }
 

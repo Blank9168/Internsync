@@ -1,10 +1,10 @@
 public class MainClass {
     public static void main(String[] args) {
-        // Default admin instance object
-        Admin admin = new Admin(1, "admin", "admin123", "admin@internsync.com");
-
+        // Show system information using the interface's static method
+        InternshipActions.showSystemInfo();
+        
         // Initialize the system
-        Internsync system = new Internsync("InternSync", "v1.0");
+        Internsync system = new Internsync("InternSync", "v2.0");
         system.startSystem();
     }
 }

@@ -15,9 +15,29 @@ public class Student extends User {
     // Getters
     public String getName()   { return name; }
     public String getCourse() { return course; }
+    
+    // Setters - polymorphism in action
+    public void setName(String name)   { this.name = name; }
+    public void setCourse(String course) { this.course = course; }
+
+    @Override
+    public String getDisplayName() {
+        return name + " (" + course + ")";
+    }
+    
+    @Override
+    public void viewPersonalInfo() {
+        System.out.println("\n=== STUDENT PROFILE ===");
+        System.out.println("Username: " + username);
+        System.out.println("Name    : " + name);
+        System.out.println("Course  : " + course);
+        System.out.println("Email   : " + email);
+        System.out.println("Role    : " + role);
+    }
 
     @Override
     public void displayMenu() {
+        logAction("viewing menu");
         System.out.println("\n=============================");
         System.out.println("  Welcome, " + name + " (" + course + ")");
         System.out.println("=============================");
@@ -152,6 +172,7 @@ public class Student extends User {
     // ── BROWSE with skill-match scoring ──────────────────────────
 
     // Browse internships — matched ones float to top with a match badge
+    @Override
     public List<String[]> browseInternships() {
         List<String[]> list = new ArrayList<>();
         try {
@@ -232,6 +253,7 @@ public class Student extends User {
         }
         return list;
     }
+    
     // ── APPLICATIONS with RESUME GATE ─────────────────────────────
     public void uploadResume(Scanner sc) {
         System.out.println("\n========== UPLOAD RESUME ==========");
@@ -309,6 +331,7 @@ public class Student extends User {
 
             System.out.println(" Resume uploaded successfully to: " + dest.getPath());
             System.out.println("  Status reset to PENDING for school review.");
+            logAction("uploaded resume");
         } catch (Exception e) {
             System.out.println("Error updating resume status: " + e.getMessage());
         }
@@ -446,6 +469,7 @@ public class Student extends User {
             bw.newLine();
             bw.close();
             System.out.println("\n✔ Successfully applied for: " + title + " at " + companyName);
+            logAction("applied for internship: " + title);
         } catch (Exception e) {
             System.out.println("Error saving application: " + e.getMessage());
         }
@@ -511,13 +535,15 @@ public class Student extends User {
             bw.close();
 
             System.out.println(" Application withdrawn successfully.");
+            logAction("withdrew application: " + targetAppId);
         } catch (Exception e) {
             System.out.println("Error withdrawing application: " + e.getMessage());
         }
     }
 
     // View own applications and their status
-    public void viewMyApplications() {
+    @Override
+    public void viewApplications() {
         try {
             // Check if the applications file exists
             File f = new File("applications.txt");
@@ -543,6 +569,7 @@ public class Student extends User {
             }
             br.close();
             if (!found) System.out.println("You have no applications yet.");
+            logAction("viewed applications");
         } catch (Exception e) {
             System.out.println("Error reading applications: " + e.getMessage());
         }

@@ -1,6 +1,8 @@
+import java.io.*;
+import java.util.List;
 import java.util.Scanner;
 
-public abstract class User {
+public abstract class User implements InternshipActions {
     protected int userid;
     protected String username;
     protected String password;
@@ -22,11 +24,21 @@ public abstract class User {
     public String getPassword()  { return password; }
     public String getRole()      { return role; }
     public String getEmail()     { return email; }
-
+    
+    // Setters - more encapsulation
+    public void setUsername(String username) { this.username = username; }
+    public void setEmail(String email)       { this.email = email; }
+    
+    // Abstract methods (Abstraction)
     public abstract void displayMenu();
-
-    // Change own password — available to all roles
+    public abstract String getDisplayName();
+    public abstract void viewPersonalInfo();
+    
+    // Concrete method - Change own password (Polymorphism - can be overridden)
+    @Override
     public void changePassword(Scanner sc) {
+        logAction("attempting password change");
+        
         System.out.print("Enter current password: ");
         String current = sc.nextLine().trim();
         if (!this.password.equals(current)) {
@@ -41,8 +53,8 @@ public abstract class User {
         if (!newPass.equals(confirm)) { System.out.println("Passwords do not match."); return; }
 
         try {
-            java.util.List<String> lines = new java.util.ArrayList<>();
-            java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader("users.txt"));
+            List<String> lines = new java.util.ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader("users.txt"));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] d = line.split(",");
@@ -50,13 +62,25 @@ public abstract class User {
                 lines.add(line);
             }
             br.close();
-            java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter("users.txt"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
             this.password = newPass;
             System.out.println(" Password changed successfully.");
+            logAction("password changed successfully");
         } catch (Exception e) {
             System.out.println("Error changing password: " + e.getMessage());
         }
+    }
+    
+    // Default implementations from interface (can be overridden)
+    @Override
+    public void browseInternships() {
+        System.out.println(getDisplayName() + " doesn't have direct internship browsing.");
+    }
+    
+    @Override
+    public void viewApplications() {
+        System.out.println(getDisplayName() + " is viewing applications.");
     }
 }

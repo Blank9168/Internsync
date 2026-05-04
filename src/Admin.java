@@ -9,7 +9,22 @@ public class Admin extends User {
     }
 
     @Override
+    public String getDisplayName() {
+        return username + " (Administrator)";
+    }
+    
+    @Override
+    public void viewPersonalInfo() {
+        System.out.println("\n=== ADMIN PROFILE ===");
+        System.out.println("Username: " + username);
+        System.out.println("Email   : " + email);
+        System.out.println("Role    : " + role);
+        System.out.println("(Full administrative access)");
+    }
+
+    @Override
     public void displayMenu() {
+        logAction("viewing menu");
         System.out.println("\n=============================");
         System.out.println("       ADMIN PANEL");
         System.out.println("=============================");
@@ -97,6 +112,7 @@ public class Admin extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
             System.out.println(" Role updated to '" + newRole + "' for user: " + targetUsername);
+            logAction("changed role of " + targetUsername + " to " + newRole);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -129,6 +145,7 @@ public class Admin extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
             System.out.println(" User '" + target + "' deleted.");
+            logAction("deleted user: " + target);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -173,12 +190,14 @@ public class Admin extends User {
             for (String l : lines) { bw.write(l); bw.newLine(); }
             bw.close();
             System.out.println(" Password reset successfully for user: " + target);
+            logAction("reset password for user: " + target);
         } catch (Exception e) {
             System.out.println("Error resetting password: " + e.getMessage());
         }
     }
 
     // View all internships
+    @Override
     public void viewAllInternships() {
         try {
             // Check if internships file exists
@@ -202,6 +221,7 @@ public class Admin extends User {
                 }
             }
             br.close();
+            logAction("viewed all internships");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -240,7 +260,8 @@ public class Admin extends User {
     }
 
     // View all applications
-    public void viewAllApplications() {
+    @Override
+    public void viewApplications() {
         try {
             // Check if applications file exists
             File f = new File("applications.txt");
@@ -261,6 +282,7 @@ public class Admin extends User {
                 }
             }
             br.close();
+            logAction("viewed all applications");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -366,6 +388,7 @@ public class Admin extends User {
                     for (String l : lines) { bw.write(l); bw.newLine(); }
                     bw.close();
                     System.out.println(" Resume of '" + studentUser + "' deleted successfully.");
+                    logAction("deleted resume of " + studentUser);
                 } catch (Exception e) {
                     System.out.println("Error updating records: " + e.getMessage());
                 }
@@ -375,5 +398,10 @@ public class Admin extends User {
         } else {
             System.out.println("Invalid action.");
         }
+    }
+    
+    @Override
+    public void browseInternships() {
+        viewAllInternships();
     }
 }
