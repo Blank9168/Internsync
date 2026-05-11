@@ -2,6 +2,31 @@ import java.io.*;
 import java.util.*;
 
 public class School extends User {
+    @Override
+    public String getDisplayName() {
+        return schoolName + " (School)";
+    }
+
+    @Override
+    public void viewPersonalInfo() {
+        System.out.println("\n=== SCHOOL PROFILE ===");
+        System.out.println("Username : " + username);
+        System.out.println("School   : " + schoolName);
+        System.out.println("Address  : " + address);
+        System.out.println("Email    : " + email);
+        System.out.println("Role     : " + role);
+    }
+
+    @Override
+    public List<String[]> viewAllInternships() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public void logAction(String action) {
+        super.logAction(action);
+    }
+
     private String schoolName;
     private String address;
 
@@ -86,10 +111,12 @@ public class School extends User {
     }
 
     // View all student applications
-    public void viewApplications() {
+    public List<String[]> viewApplications() {
         try {
             File f = new File("applications.txt");
-            if (!f.exists()) { System.out.println("No applications yet."); return; }
+            if (!f.exists()) { System.out.println("No applications yet.");
+                return new ArrayList<>();
+            }
 
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
@@ -112,6 +139,7 @@ public class School extends User {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+        return new ArrayList<>();
     }
 
     // View only accepted students

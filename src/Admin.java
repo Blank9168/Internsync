@@ -198,11 +198,12 @@ public class Admin extends User {
 
     // View all internships
     @Override
-    public void viewAllInternships() {
+    public List<String[]> viewAllInternships() {
+        List<String[]> internships = new ArrayList<>();
         try {
             // Check if internships file exists
             File f = new File("internships.txt");
-            if (!f.exists()) { System.out.println("No internships found."); return; }
+            if (!f.exists()) { System.out.println("No internships found."); return internships; }
 
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
@@ -225,6 +226,7 @@ public class Admin extends User {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+        return internships;
     }
 
     // View all student skills
@@ -261,11 +263,12 @@ public class Admin extends User {
 
     // View all applications
     @Override
-    public void viewApplications() {
+    public List<String[]>  viewApplications() {
+        List<String[]> applications = new ArrayList<>();
         try {
             // Check if applications file exists
             File f = new File("applications.txt");
-            if (!f.exists()) { System.out.println("No applications found."); return; }
+            if (!f.exists()) { System.out.println("No applications found."); return applications; }
 
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
@@ -286,6 +289,7 @@ public class Admin extends User {
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
+        return new ArrayList<>();
     }
 
     // Admin: list all resumes, read info, or delete a file
@@ -401,7 +405,7 @@ public class Admin extends User {
     }
     
     @Override
-    public void browseInternships() {
-        viewAllInternships();
+    public List<String[]>   browseInternships() {
+        return viewAllInternships();
     }
 }

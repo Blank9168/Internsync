@@ -205,7 +205,7 @@ public class Internsync {
                     case "6": s.viewResumeStatus();       break;
                     case "7": s.manageSkills(sc);         break;
                     case "8": s.changePassword(sc);       break;
-                    case "9": loggedIn = false; System.out.println("Logged out."); break;
+                    case "9": System.out.println("Logging out..."); return;
                     default:  System.out.println("Invalid option.");
                 }
 
@@ -221,7 +221,7 @@ public class Internsync {
                     case "7":  c.viewApplicantResume(sc);       break;
                     case "8":  c.filterApplicantsBySkills(sc);  break;
                     case "9":  c.changePassword(sc);            break;
-                    case "10": loggedIn = false; System.out.println("Logged out."); break;
+                    case "10": System.out.println("Logging out..."); return;
                     default:   System.out.println("Invalid option.");
                 }
 
@@ -237,7 +237,7 @@ public class Internsync {
                     case "7":  a.manageResumes(sc);          break;
                     case "8":  a.viewAllStudentSkills();     break;
                     case "9":  a.changePassword(sc);         break;
-                    case "10": loggedIn = false; System.out.println("Logged out."); break;
+                    case "10": System.out.println("Logging out..."); return;
                     default:   System.out.println("Invalid option.");
                 }
 
@@ -251,7 +251,7 @@ public class Internsync {
                     case "5": sch.viewEndorsements();     break;
                     case "6": sch.reviewResumes(sc);      break;
                     case "7": sch.changePassword(sc);     break;
-                    case "8": loggedIn = false; System.out.println("Logged out."); break;
+                    case "8": System.out.println("Logging out..."); return;
                     default:  System.out.println("Invalid option.");
                 }
             }

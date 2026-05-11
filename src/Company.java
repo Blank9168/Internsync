@@ -2,6 +2,17 @@ import java.io.*;
 import java.util.*;
 
 public class Company extends User {
+    @Override
+    public List<String[]> viewAllInternships() {
+        System.out.println("Not allowed for company role.");
+        return new ArrayList<>();
+    }
+
+    @Override
+    public void logAction(String action) {
+        super.logAction(action);
+    }
+
     private String companyName;
 
     // Constructor
@@ -467,17 +478,17 @@ public class Company extends User {
     }
 
     // View resume of a specific applicant — only students who applied to THIS company
-    public void viewApplicantResume(Scanner sc) {
+    public List<String[]> viewApplicantResume(Scanner sc) {
         List<String[]> applicants = viewApplications();
-        if (applicants.isEmpty()) return;
+        if (applicants.isEmpty()) return applicants;
 
         System.out.print("\nEnter applicant number to view resume (0 to cancel): ");
         int choice;
         // Validate that the input is an integer and within the valid range
         try { choice = Integer.parseInt(sc.nextLine().trim()); }
-        catch (NumberFormatException e) { System.out.println("Invalid input."); return; }
-        if (choice == 0) return;
-        if (choice < 1 || choice > applicants.size()) { System.out.println("Invalid selection."); return; }
+        catch (NumberFormatException e) { System.out.println("Invalid input."); return applicants; }
+        if (choice == 0) return applicants;
+        if (choice < 1 || choice > applicants.size()) { System.out.println("Invalid selection."); return applicants; }
 
         // applicants list already filtered to this company by viewApplications()
         // d[2] = studentUsername, d[5] = company
@@ -488,13 +499,13 @@ public class Company extends User {
         // Safety: double-check the applicant belongs to this company
         if (!appliedCompany.equalsIgnoreCase(companyName)) {
             System.out.println("Access denied. This applicant did not apply to your company.");
-            return;
+            return applicants;
         }
 
         try {
             // Check if the resume status file exists
             File statusFile = new File("resume_status.txt");
-            if (!statusFile.exists()) { System.out.println("No resumes have been uploaded yet."); return; }
+            if (!statusFile.exists()) { System.out.println("No resumes have been uploaded yet."); return applicants; }
 
             BufferedReader br = new BufferedReader(new FileReader(statusFile));
             String line;
@@ -526,10 +537,12 @@ public class Company extends User {
         } catch (Exception e) {
             System.out.println("Error reading resume: " + e.getMessage());
         }
+        return applicants;
     }
     
     @Override
-    public void browseInternships() {
+    public List<String[]> browseInternships() {
         viewMyInternships();
+        return new java.util.ArrayList<>();
     }
 }

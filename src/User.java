@@ -1,6 +1,5 @@
 import java.io.*;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public abstract class User implements InternshipActions {
     protected int userid;
@@ -38,49 +37,81 @@ public abstract class User implements InternshipActions {
     @Override
     public void changePassword(Scanner sc) {
         logAction("attempting password change");
-        
+
         System.out.print("Enter current password: ");
         String current = sc.nextLine().trim();
+
         if (!this.password.equals(current)) {
             System.out.println("Incorrect current password.");
+            logAction("failed password change attempt");
             return;
         }
+
         System.out.print("Enter new password    : ");
         String newPass = sc.nextLine().trim();
-        if (newPass.isEmpty()) { System.out.println("Password cannot be empty."); return; }
+
+        if (newPass.isEmpty()) {
+            System.out.println("Password cannot be empty.");
+            return;
+        }
+
         System.out.print("Confirm new password  : ");
         String confirm = sc.nextLine().trim();
-        if (!newPass.equals(confirm)) { System.out.println("Passwords do not match."); return; }
+
+        if (!newPass.equals(confirm)) {
+            System.out.println("Passwords do not match.");
+            return;
+        }
+
+        File f = new File("users.txt");
+        if (!f.exists()) {
+            System.out.println("User database not found.");
+            return;
+        }
 
         try {
-            List<String> lines = new java.util.ArrayList<>();
-            BufferedReader br = new BufferedReader(new FileReader("users.txt"));
+            List<String> lines = new ArrayList<>();
+            BufferedReader br = new BufferedReader(new FileReader(f));
+
             String line;
             while ((line = br.readLine()) != null) {
                 String[] d = line.split(",");
-                if (d[0].trim().equals(this.username)) { d[1] = newPass; line = String.join(",", d); }
+
+                if (d.length >= 2 && d[0].trim().equals(this.username)) {
+                    d[1] = newPass;
+                    line = String.join(",", d);
+                }
+
                 lines.add(line);
             }
             br.close();
-            BufferedWriter bw = new BufferedWriter(new FileWriter("users.txt"));
-            for (String l : lines) { bw.write(l); bw.newLine(); }
+
+            BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+            for (String l : lines) {
+                bw.write(l);
+                bw.newLine();
+            }
             bw.close();
+
             this.password = newPass;
-            System.out.println(" Password changed successfully.");
+            System.out.println("Password changed successfully.");
             logAction("password changed successfully");
+
         } catch (Exception e) {
             System.out.println("Error changing password: " + e.getMessage());
         }
     }
-    
+
     // Default implementations from interface (can be overridden)
     @Override
-    public void browseInternships() {
+    public List<String[]> browseInternships() {
         System.out.println(getDisplayName() + " doesn't have direct internship browsing.");
+        return new java.util.ArrayList<>();
     }
-    
+
     @Override
-    public void viewApplications() {
+    public List<String[]> viewApplications() {
         System.out.println(getDisplayName() + " is viewing applications.");
+        return new java.util.ArrayList<>();
     }
 }

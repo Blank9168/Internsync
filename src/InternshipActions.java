@@ -1,4 +1,6 @@
 // InternshipActions.java
+import java.util.*;
+
 public interface InternshipActions {
     
     // Common actions for all users
@@ -6,8 +8,9 @@ public interface InternshipActions {
     void changePassword(java.util.Scanner sc);
     
     // Actions related to internships
-    void browseInternships();  // implemented differently by Student, Company, Admin
-    void viewApplications();   // viewing applications from different perspectives
+    List<String[]> browseInternships();  // implemented differently by Student, Company, Admin
+    List<String[]>  viewApplications();   // viewing applications from different perspectives
+    List<String[]>  viewAllInternships(); // for Admin to see all internships in the system
     
     // Default method (Java 8+ feature)
     default void logAction(String action) {

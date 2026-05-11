@@ -2,6 +2,16 @@ import java.io.*;
 import java.util.*;
 
 public class Student extends User {
+    @Override
+    public List<String[]> viewAllInternships() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public void logAction(String action) {
+        super.logAction(action);
+    }
+
     private String name;
     private String course;
 
@@ -343,7 +353,10 @@ public class Student extends User {
         try {
             // Check if resume_status.txt exists and find this student's entry
             File f = new File("resume_status.txt");
-            if (!f.exists()) { System.out.println("You have not uploaded a resume yet."); return; }
+            if (!f.exists()) {
+                System.out.println("\nNo resumes uploaded yet.");
+                return;
+            }
 
             // Format: username|filePath|schoolStatus|schoolNote|uploadDate
             BufferedReader br = new BufferedReader(new FileReader(f));
@@ -543,13 +556,13 @@ public class Student extends User {
 
     // View own applications and their status
     @Override
-    public void viewApplications() {
+    public List<String[]> viewApplications() {
         try {
             // Check if the applications file exists
             File f = new File("applications.txt");
             if (!f.exists()) {
                 System.out.println("You have no applications yet.");
-                return;
+                return null;
             }
             // Format: appId|internshipId|studentUsername|studentName|course|company|title|status
             BufferedReader br = new BufferedReader(new FileReader(f));
@@ -573,5 +586,6 @@ public class Student extends User {
         } catch (Exception e) {
             System.out.println("Error reading applications: " + e.getMessage());
         }
+        return new ArrayList<>();
     }
 }

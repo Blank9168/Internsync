@@ -1,1 +1,2 @@
 admin,admin123,admin,admin@internsync.com,,
+Jay,123,student,jay@gmail.com,Godwinson,BSCS
